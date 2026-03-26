@@ -340,12 +340,12 @@ export default function Landing() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES.map((f, i) => (
-              <div key={i} className="group p-7 rounded-2xl bg-slate-50 hover:bg-gradient-to-br hover:from-orange-500 hover:to-amber-500 border border-slate-100 hover:border-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-500/25">
-                <div className="size-12 rounded-xl bg-[#0a0e1a] group-hover:bg-white flex items-center justify-center transition-colors duration-300 shadow-lg shadow-slate-200 group-hover:shadow-white/30">
-                  <f.icon className="size-5 text-white group-hover:text-black" />
+              <div key={i} className="group p-7 rounded-2xl bg-slate-50 hover:bg-white border border-slate-100 hover:border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
+                <div className="size-12 rounded-xl bg-[#0a0e1a] flex items-center justify-center transition-colors duration-300 shadow-lg shadow-slate-200">
+                  <f.icon className="size-5 text-white" />
                 </div>
-                <h3 className="font-bold text-slate-900 group-hover:text-white text-lg mt-5 transition-colors">{f.title}</h3>
-                <p className="text-slate-500 group-hover:text-slate-400 text-sm mt-2 leading-relaxed transition-colors">{f.description}</p>
+                <h3 className="font-bold text-slate-900 text-lg mt-5 transition-colors">{f.title}</h3>
+                <p className="text-slate-500 text-sm mt-2 leading-relaxed transition-colors">{f.description}</p>
               </div>
             ))}
           </div>
