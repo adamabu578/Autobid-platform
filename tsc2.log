@@ -1,0 +1,1 @@
+﻿src/main.tsx(3,19): error TS2307: Cannot find module './app/App.tsx' or its corresponding type declarations.
