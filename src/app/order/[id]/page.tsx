@@ -3,18 +3,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../components/Root";
-import { getOrders, type Order } from "../../utils/api";
+import { getOrders, getCar, type Order, type Car } from "../../utils/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
-import { Package, Store, Bike, CheckCircle, MapPin, DollarSign } from "lucide-react";
+import { Package, CheckCircle, CarFront, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
 const statusSteps = [
-  { key: 'vendor_accepted', label: 'Vendor Accepted', icon: Store },
-  { key: 'rider_assigned', label: 'Rider Assigned', icon: Bike },
-  { key: 'picked_up', label: 'Item Picked Up', icon: Package },
-  { key: 'delivered', label: 'Delivered', icon: CheckCircle },
+  { key: 'pending_payment', label: 'Pending Payment', icon: DollarSign },
+  { key: 'paid', label: 'Payment Completed', icon: CheckCircle },
+  { key: 'completed', label: 'Transfer Completed', icon: Package },
 ];
 
 export default function OrderStatusPage() {
@@ -22,6 +21,7 @@ export default function OrderStatusPage() {
   const router = useRouter();
   const { user, userRole } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
+  const [car, setCar] = useState<Car | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,9 +36,13 @@ export default function OrderStatusPage() {
     try {
       const orders = await getOrders();
       const orderIdObj = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : '';
-      const foundOrder = orders.find(o => o.requestId === orderIdObj || o.id === orderIdObj);
+      const foundOrder = orders.find(o => o.id === orderIdObj);
       if (foundOrder) {
         setOrder(foundOrder);
+        try {
+          const carData = await getCar(foundOrder.carId);
+          setCar(carData);
+        } catch (e) {}
       }
     } catch (error: any) {
       toast.error(error.message || 'Failed to load order');
@@ -92,10 +96,10 @@ export default function OrderStatusPage() {
         <Card className="bg-slate-900/40 backdrop-blur-xl border-white/10 shadow-2xl shadow-amber-500/10 mb-8 overflow-hidden">
           <CardHeader className="bg-white/5 border-b border-white/5 pb-6">
             <CardTitle className="flex items-center gap-3 text-2xl text-white">
-              <div className="p-2 bg-gradient-to-bl from-amber-500 to-purple-500 rounded-lg text-white">
-                <Package className="size-6" />
+              <div className="p-2 bg-gradient-to-bl from-amber-500 to-orange-500 rounded-lg text-white">
+                <CarFront className="size-6" />
               </div>
-              {order.productName}
+              {car ? `${car.year} ${car.make} ${car.model}` : 'Vehicle Order'}
             </CardTitle>
             <CardDescription className="text-gray-400 font-medium">
               Order ID: <span className="font-mono text-amber-300">{order.id}</span>
@@ -106,15 +110,15 @@ export default function OrderStatusPage() {
               <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/5">
                 <DollarSign className="size-6 text-green-400" />
                 <div>
-                  <div className="text-xs uppercase text-gray-500 font-bold mb-1">Price</div>
-                  <div className="text-lg font-bold text-white">₦{order.price.toLocaleString()}</div>
+                  <div className="text-xs uppercase text-gray-500 font-bold mb-1">Winning Bid</div>
+                  <div className="text-lg font-bold text-white">${order.amount.toLocaleString()}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/5">
-                <MapPin className="size-6 text-orange-400" />
+                <Package className="size-6 text-orange-400" />
                 <div className="overflow-hidden">
-                  <div className="text-xs uppercase text-gray-500 font-bold mb-1">Destination</div>
-                  <div className="text-lg font-bold text-white truncate w-full" title={order.location}>{order.location}</div>
+                  <div className="text-xs uppercase text-gray-500 font-bold mb-1">Status</div>
+                  <div className="text-lg font-bold text-white truncate w-full capitalize">{order.status.replace('_', ' ')}</div>
                 </div>
               </div>
             </div>
@@ -177,7 +181,7 @@ export default function OrderStatusPage() {
       </div>
 
       <div>
-        {order.status === 'delivered' && (
+        {order.status === 'completed' && (
           <div 
             className="p-6 bg-gradient-to-r from-green-900/40 to-emerald-900/20 rounded-2xl border border-green-500/30 shadow-2xl shadow-green-900/20"
           >
@@ -185,10 +189,10 @@ export default function OrderStatusPage() {
               <div className="p-2 bg-green-500/20 rounded-full">
                 <CheckCircle className="size-6" />
               </div>
-              <h3 className="text-xl font-bold">Order Delivered Successfully!</h3>
+              <h3 className="text-xl font-bold">Transfer Completed Successfully!</h3>
             </div>
             <p className="text-md text-green-100/70 ml-14 font-medium">
-              Thank you for using QuickDeliver. Enjoy your item!
+              Thank you for using Autobid. Enjoy your new vehicle!
             </p>
           </div>
         )}
