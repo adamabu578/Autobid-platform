@@ -7,7 +7,7 @@ import { getCars, getCarBids, type Car, type Bid } from "../utils/api";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
-import { Search, MapPin, Loader2, CarFront, Tag, Clock, ShieldCheck, ArrowRight, TrendingUp } from "lucide-react";
+import { Search, MapPin, Loader2, CarFront, Tag, Clock, ShieldCheck, ArrowRight, TrendingUp, Award } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import Link from "next/link";
 interface CarWithBids extends Car {
   highestBid: number;
   bidCount: number;
+  isTopSeller?: boolean;
 }
 
 export default function LiveAuctions() {
@@ -22,6 +23,7 @@ export default function LiveAuctions() {
   const router = useRouter();
 
   const [cars, setCars] = useState<CarWithBids[]>([]);
+  const [topSellers, setTopSellers] = useState<{id: string, name: string, activeListings: number}[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,10 +38,35 @@ export default function LiveAuctions() {
       const data = await getCars();
       const activeCars = data.filter(c => c.status === 'active');
       
+      // Calculate highest seller
+      const sellerCounts: Record<string, number> = {};
+      data.forEach(c => {
+        sellerCounts[c.sellerId] = (sellerCounts[c.sellerId] || 0) + 1;
+      });
+      
+      // Extract top sellers
+      const sortedSellers = Object.entries(sellerCounts)
+        .sort((a, b) => b[1] - a[1])
+        .filter(([, count]) => count > 0)
+        .slice(0, 3)
+        .map(([sId, count]) => {
+          const sellerCar = data.find(c => c.sellerId === sId);
+          return { id: sId, name: sellerCar?.sellerName || 'Seller', activeListings: count };
+        });
+      setTopSellers(sortedSellers);
+
+      let topSellerId = sortedSellers.length > 0 ? sortedSellers[0].id : "";
+      let maxCars = sortedSellers.length > 0 ? sortedSellers[0].activeListings : 0;
+      
       const carsWithBids = await Promise.all(activeCars.map(async (car) => {
         const bids = await getCarBids(car.id);
         const highestBid = bids.length > 0 ? Math.max(...bids.map(b => b.amount)) : 0;
-        return { ...car, highestBid, bidCount: bids.length };
+        return { 
+          ...car, 
+          highestBid, 
+          bidCount: bids.length,
+          isTopSeller: car.sellerId === topSellerId && maxCars > 0
+        };
       }));
       
       setCars(carsWithBids.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
@@ -115,10 +142,56 @@ export default function LiveAuctions() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Top Sellers Section */}
+      {topSellers.length > 0 && selectedMake === "All" && searchQuery === "" && (
+        <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex items-center gap-3 mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center">
+              <Award className="size-5 text-amber-500 mr-2" />
+              Verified Top Sellers
+            </h2>
+            <div className="h-px bg-gradient-to-r from-amber-500/50 to-transparent flex-1" />
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {topSellers.map((seller, index) => (
+              <Card key={seller.id} className="bg-slate-900/40 backdrop-blur-xl border border-white/10 relative overflow-hidden group hover:border-amber-500/30 transition-colors">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`size-12 rounded-2xl flex items-center justify-center font-bold text-lg border shadow-lg ${
+                        index === 0 
+                          ? 'bg-gradient-to-br from-amber-400 to-orange-600 border-amber-300/50 text-white shadow-orange-500/20' 
+                          : 'bg-slate-800 border-white/10 text-slate-300'
+                      }`}>
+                        {index === 0 ? <Award className="size-6 text-white" /> : `#${index + 1}`}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-extrabold text-white truncate max-w-[140px]" title={seller.name}>{seller.name}</h3>
+                        <div className="flex items-center gap-1.5 mt-1 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                          <ShieldCheck className="size-3.5" /> Verified
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-5 pt-5 border-t border-white/5 flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Active Auctions</div>
+                      <div className="text-slate-300 font-medium">{seller.activeListings} Premium Vehicles</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredCars.map(car => (
           <Card key={car.id} className="bg-slate-900/40 border-white/10 overflow-hidden hover:border-orange-500/50 transition-all hover:shadow-2xl hover:shadow-orange-500/10 group flex flex-col h-full rounded-2xl p-0">
-            <div className="relative h-56 w-full overflow-hidden">
+            <div className="relative h-72 w-full overflow-hidden">
               <img 
                 src={car.imageUrl} 
                 alt={`${car.make} ${car.model}`} 
@@ -149,11 +222,16 @@ export default function LiveAuctions() {
 
             <CardContent className="p-5 flex-1 flex flex-col">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-hidden">
                   <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
-                  <span className="text-xs text-slate-400 font-medium truncate max-w-[120px]">
+                  <span className="text-xs text-slate-400 font-medium truncate max-w-[100px]" title={car.sellerName}>
                     {car.sellerName}
                   </span>
+                  {car.isTopSeller && (
+                    <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-amber-500/30 text-[9px] font-black text-amber-400 uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="Premium Verified Seller">
+                      <Award className="size-3" /> Top Seller
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-slate-500 font-medium px-2 py-1 bg-white/5 rounded-md border border-white/5">
                   {car.mileage.toLocaleString()} mi

@@ -9,7 +9,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Loader2, CarFront, UploadCloud, ArrowLeft, DollarSign, ImagePlus } from "lucide-react";
+import { Loader2, CarFront, UploadCloud, ArrowLeft, DollarSign, ImagePlus, CreditCard, Lock, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -42,6 +42,11 @@ export default function UploadCarPage() {
     }
   };
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const LISTING_FEE = 49.99; // $49.99 Premium Listing Fee
+
   useEffect(() => {
     if (!authLoading) {
       if (!user || userRole !== 'seller') {
@@ -50,16 +55,28 @@ export default function UploadCarPage() {
     }
   }, [user, userRole, authLoading, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!make || !model || !year || !mileage || !startingPrice) {
       toast.error('Please fill in all required fields');
       return;
     }
+    
+    // Trigger Payment Modal Instead of Submitting Directly
+    setShowPaymentModal(true);
+  };
 
-    setLoading(true);
+  const processPaymentAndListCar = async () => {
+    setPaymentProcessing(true);
+    
     try {
-      // Create a premium unsplash car image fallback if not provided
+      // Simulate Payment Gateway Delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setPaymentSuccess(true);
+      
+      // Wait a moment so the user sees the success state
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       const finalImage = imageUrl.trim() || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1000&auto=format&fit=crop";
 
       await createCarListing(
@@ -74,11 +91,13 @@ export default function UploadCarPage() {
         finalImage
       );
 
-      toast.success('Car successfully listed for auction!');
+      toast.success('Payment successful! Car listed for auction.');
       router.push('/seller/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Failed to list car');
-      setLoading(false);
+      setPaymentProcessing(false);
+      setPaymentSuccess(false);
+      setShowPaymentModal(false);
     }
   };
 
@@ -98,7 +117,7 @@ export default function UploadCarPage() {
           <h1 className="text-4xl font-extrabold text-white mb-2 tracking-tight">List Your Premium Vehicle</h1>
           <p className="text-slate-400 text-lg mb-8">Reach thousands of engaged buyers across our live auction platform.</p>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleInitialSubmit}>
             <Card className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden rounded-2xl">
               <div className="bg-gradient-to-r from-orange-600/20 to-transparent p-6 border-b border-white/5">
                 <div className="flex items-center gap-3">
@@ -263,10 +282,8 @@ export default function UploadCarPage() {
                 <Button 
                   type="submit" 
                   className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white h-14 rounded-xl text-lg font-bold shadow-xl shadow-orange-900/30 transition-all hover:scale-[1.02] active:scale-[0.98] mt-6"
-                  disabled={loading}
                 >
-                  {loading ? <Loader2 className="size-6 animate-spin mr-2" /> : null}
-                  Launch Live Auction
+                  Proceed to Payment
                 </Button>
               </CardContent>
             </Card>
@@ -314,6 +331,104 @@ export default function UploadCarPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Overlay Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="absolute inset-0" onClick={() => !paymentProcessing && !paymentSuccess && setShowPaymentModal(false)} />
+          
+          <Card className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-white/10 shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-200 rounded-2xl">
+            {/* Success State Overlay */}
+            {paymentSuccess && (
+              <div className="absolute inset-0 bg-green-500/20 backdrop-blur-md z-20 flex flex-col items-center justify-center animate-in fade-in duration-300">
+                <CheckCircle2 className="size-20 text-green-400 mb-4 animate-in zoom-in duration-500" />
+                <h3 className="text-2xl font-bold text-white mb-2">Payment Successful!</h3>
+                <p className="text-green-100">Launching your live auction...</p>
+              </div>
+            )}
+
+            <div className="bg-gradient-to-r from-orange-600/20 to-transparent p-6 border-b border-white/5 relative">
+              <button 
+                onClick={() => !paymentProcessing && !paymentSuccess && setShowPaymentModal(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+                disabled={paymentProcessing || paymentSuccess}
+              >
+                ✕
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-orange-500/20 border border-orange-500/30 text-orange-400">
+                  <CreditCard className="size-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Listing Checkout</h2>
+                  <p className="text-slate-400 text-sm">Secure premium vehicle placement</p>
+                </div>
+              </div>
+            </div>
+
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center bg-slate-950/50 p-4 rounded-xl border border-white/5 mb-6">
+                <div>
+                  <div className="text-sm font-bold text-slate-300">{year} {make} {model}</div>
+                  <div className="text-xs text-slate-500">Premium Listing Fee - {auctionDays} Days</div>
+                </div>
+                <div className="text-2xl font-extrabold text-white">${LISTING_FEE.toFixed(2)}</div>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="space-y-2">
+                  <Label className="text-slate-300 text-xs font-bold uppercase tracking-wider">Card Information</Label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-500" />
+                    <Input 
+                      placeholder="4242 4242 4242 4242" 
+                      className="bg-slate-950/50 border-white/10 text-white pl-10 h-12 rounded-xl focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-slate-300 text-xs font-bold uppercase tracking-wider">Expiry</Label>
+                    <Input 
+                      placeholder="MM/YY" 
+                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-orange-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-slate-300 text-xs font-bold uppercase tracking-wider">CVC</Label>
+                    <Input 
+                      placeholder="123" 
+                      type="password"
+                      maxLength={4}
+                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mb-6">
+                <Lock className="size-3" /> Payments are secure and encrypted
+              </div>
+
+              <Button 
+                onClick={processPaymentAndListCar}
+                className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white h-14 rounded-xl text-lg font-bold shadow-xl transition-all"
+                disabled={paymentProcessing}
+              >
+                {paymentProcessing ? (
+                  <>
+                    <Loader2 className="size-5 animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>Pay ${LISTING_FEE} & List Car</>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

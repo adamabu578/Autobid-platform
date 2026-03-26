@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../components/Root";
 import { useRouter, useParams } from "next/navigation";
-import { getCar, getCarBids, placeBid, updateCarStatus, type Car, type Bid } from "../../utils/api";
+import { getCars, getCar, getCarBids, placeBid, updateCarStatus, type Car, type Bid } from "../../utils/api";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { ArrowLeft, CarFront, Clock, DollarSign, Loader2, ShieldCheck, TrendingUp, Trophy, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CarFront, Clock, DollarSign, Loader2, ShieldCheck, TrendingUp, Trophy, CheckCircle2, Award } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -18,7 +18,7 @@ export default function CarDetailsPage() {
   const params = useParams();
   const carId = params?.id as string;
 
-  const [car, setCar] = useState<Car | null>(null);
+  const [car, setCar] = useState<Car & { isTopSeller?: boolean } | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -36,7 +36,27 @@ export default function CarDetailsPage() {
   const loadCarDetails = async () => {
     try {
       const carData = await getCar(carId);
-      setCar(carData);
+
+      const allCars = await getCars();
+      const activeCars = allCars.filter(c => c.status === 'active');
+      const sellerCounts: Record<string, number> = {};
+      activeCars.forEach(c => {
+        sellerCounts[c.sellerId] = (sellerCounts[c.sellerId] || 0) + 1;
+      });
+      let topSellerId = "";
+      let maxCars = 0;
+      for (const [sId, count] of Object.entries(sellerCounts)) {
+        if (count > maxCars) {
+          maxCars = count;
+          topSellerId = sId;
+        }
+      }
+
+      setCar({ 
+        ...carData, 
+        isTopSeller: carData.sellerId === topSellerId && maxCars > 0 
+      });
+      
       const bidsData = await getCarBids(carId);
       setBids(bidsData.sort((a, b) => b.amount - a.amount));
     } catch (error) {
@@ -182,7 +202,14 @@ export default function CarDetailsPage() {
             </h3>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-medium text-lg">{car.sellerName}</p>
+                <p className="text-white font-medium text-lg flex items-center gap-2">
+                  {car.sellerName}
+                  {car.isTopSeller && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-amber-500/30 text-[10px] font-black text-amber-400 uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="Premium Verified Seller">
+                      <Award className="size-3" /> Top Seller
+                    </span>
+                  )}
+                </p>
                 <p className="text-slate-400 text-sm">Verified Dealership</p>
               </div>
               <Button variant="outline" className="border-white/10 text-white hover:bg-white/5" disabled>

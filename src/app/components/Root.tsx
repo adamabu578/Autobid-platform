@@ -71,11 +71,13 @@ export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ user, userRole, loading, refreshUser }}>
       <div className="min-h-screen flex flex-col relative">
-        {/* Abstract Background Elements */}
+        {/* Abstract Background Elements — hidden on landing page */}
+        {user && (
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-orange-900/20 blur-[120px]" />
           <div className="absolute top-[60%] -right-[10%] w-[40%] h-[40%] rounded-full bg-amber-900/20 blur-[100px]" />
         </div>
+        )}
 
         {/* Header */}
         {user && (
@@ -143,7 +145,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Main Content */}
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full z-10 relative">
+        <main className="flex-1 w-full z-10 relative">
           {loading ? (
             <div className="flex items-center justify-center h-[60vh]">
               <div
