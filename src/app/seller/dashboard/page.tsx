@@ -64,7 +64,7 @@ export default function SellerDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="size-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
+        <div className="size-12 border-4 border-teal-600/30 border-t-teal-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -79,7 +79,7 @@ export default function SellerDashboard() {
         <div className="flex items-center gap-3">
           <Button 
             onClick={() => router.push('/upload-car')}
-            className="bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white shadow-lg shadow-orange-500/20 rounded-xl font-bold h-11"
+            className="bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-500 hover:to-teal-300 text-white shadow-lg shadow-teal-600/20 rounded-xl font-bold h-11"
           >
             + List New Car
           </Button>
@@ -90,7 +90,7 @@ export default function SellerDashboard() {
         <Card className="bg-slate-900/40 backdrop-blur-xl border-white/10 shadow-2xl">
           <CardContent className="flex flex-col items-center justify-center py-24">
             <div className="p-6 rounded-full bg-white/5 border border-white/10 mb-6 group-hover:scale-110 transition-transform">
-              <CarFront className="size-16 text-orange-400/50" />
+              <CarFront className="size-16 text-amber-500/50" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">No cars listed yet</h3>
             <p className="text-gray-400 mb-8 max-w-sm text-center">Start selling by adding your first premium vehicle to the auction platform.</p>
@@ -105,13 +105,13 @@ export default function SellerDashboard() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {cars.map((car) => (
-            <Card key={car.id} className="h-full bg-slate-900/40 backdrop-blur-xl border-white/10 overflow-hidden shadow-xl shadow-black/50 hover:shadow-orange-500/10 hover:border-orange-500/30 transition-all duration-300 flex flex-col group p-0">
+            <Card key={car.id} className="h-full bg-slate-900/40 backdrop-blur-xl border-white/10 overflow-hidden shadow-xl shadow-black/50 hover:shadow-teal-600/10 hover:border-teal-600/30 transition-all duration-300 flex flex-col group p-0">
               <div className="relative h-48 w-full overflow-hidden">
                 <img src={car.imageUrl} alt={`${car.make} ${car.model}`} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute top-3 right-3 flex gap-2">
                   <Badge className={`px-2 py-0.5 text-xs uppercase font-bold tracking-wider ${
-                    car.status === 'active' ? 'bg-orange-500/90 text-white backdrop-blur-md' : 
+                    car.status === 'active' ? 'bg-teal-600/90 text-white backdrop-blur-md' : 
                     car.status === 'sold' ? 'bg-emerald-500/90 text-white backdrop-blur-md' : 
                     'bg-gray-500/90 text-white backdrop-blur-md'
                   }`}>
@@ -121,7 +121,7 @@ export default function SellerDashboard() {
                 <div className="absolute bottom-3 left-4 right-4 text-white">
                   <h3 className="text-xl font-bold truncate">{car.year} {car.make} {car.model}</h3>
                   <div className="flex items-center gap-2 text-sm text-gray-300 mt-1">
-                    <Clock className="size-3.5 text-orange-400" />
+                    <Clock className="size-3.5 text-amber-500" />
                     <span className="font-medium">{getTimeRemaining(car.auctionEndTime)}</span>
                   </div>
                 </div>
@@ -133,11 +133,11 @@ export default function SellerDashboard() {
                       <div className="text-[10px] text-gray-500 uppercase font-bold mb-1">Starting Price</div>
                       <div className="text-sm font-bold text-white">${car.startingPrice.toLocaleString()}</div>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-3 border border-orange-500/20 shadow-inner shadow-orange-500/5 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-8 h-8 bg-orange-500/20 rounded-bl-full flex items-center justify-center">
-                        <TrendingUp className="size-3 text-orange-400 absolute top-1.5 right-1.5" />
+                    <div className="bg-white/5 rounded-xl p-3 border border-teal-600/20 shadow-inner shadow-teal-600/5 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-8 h-8 bg-teal-600/20 rounded-bl-full flex items-center justify-center">
+                        <TrendingUp className="size-3 text-amber-500 absolute top-1.5 right-1.5" />
                       </div>
-                      <div className="text-[10px] text-orange-400 uppercase font-bold mb-1">Highest Bid</div>
+                      <div className="text-[10px] text-amber-500 uppercase font-bold mb-1">Highest Bid</div>
                       <div className="text-lg font-black text-white">
                         {car.highestBid > 0 ? `$${car.highestBid.toLocaleString()}` : 'No bids'}
                       </div>
@@ -148,7 +148,7 @@ export default function SellerDashboard() {
                 <div className="w-full mt-auto">
                   <Link href={`/cars/${car.id}`} className="block">
                     <Button 
-                      className="w-full bg-white/5 hover:bg-orange-600/20 text-white hover:text-orange-400 h-11 rounded-lg transition-colors font-semibold border border-white/5 hover:border-orange-500/30 shadow-sm"
+                      className="w-full bg-white/5 hover:bg-teal-700/20 text-white hover:text-amber-500 h-11 rounded-lg transition-colors font-semibold border border-white/5 hover:border-teal-600/30 shadow-sm"
                     >
                       Manage Listing <ArrowRight className="size-4 ml-2" />
                     </Button>

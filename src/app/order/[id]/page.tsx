@@ -96,7 +96,7 @@ export default function OrderStatusPage() {
         <Card className="bg-slate-900/40 backdrop-blur-xl border-white/10 shadow-2xl shadow-amber-500/10 mb-8 overflow-hidden">
           <CardHeader className="bg-white/5 border-b border-white/5 pb-6">
             <CardTitle className="flex items-center gap-3 text-2xl text-white">
-              <div className="p-2 bg-gradient-to-bl from-amber-500 to-orange-500 rounded-lg text-white">
+              <div className="p-2 bg-gradient-to-bl from-teal-500 to-teal-600 rounded-lg text-white">
                 <CarFront className="size-6" />
               </div>
               {car ? `${car.year} ${car.make} ${car.model}` : 'Vehicle Order'}
@@ -115,7 +115,7 @@ export default function OrderStatusPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/5">
-                <Package className="size-6 text-orange-400" />
+                <Package className="size-6 text-amber-500" />
                 <div className="overflow-hidden">
                   <div className="text-xs uppercase text-gray-500 font-bold mb-1">Status</div>
                   <div className="text-lg font-bold text-white truncate w-full capitalize">{order.status.replace('_', ' ')}</div>
@@ -131,7 +131,7 @@ export default function OrderStatusPage() {
               <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                 <div 
                   style={{ width: `${progress}%` }}
-                  className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-1000 ease-in-out" 
+                  className="h-full bg-gradient-to-r from-teal-500 to-teal-400 rounded-full transition-all duration-1000 ease-in-out" 
                 />
               </div>
             </div>

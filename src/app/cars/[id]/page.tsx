@@ -117,7 +117,7 @@ export default function CarDetailsPage() {
   if (authLoading || loading || !car) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="size-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
+        <div className="size-12 border-4 border-teal-600/30 border-t-teal-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -140,7 +140,7 @@ export default function CarDetailsPage() {
         <div className="lg:col-span-2 space-y-8">
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
             <img 
-              src={car.imageUrl || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1000&auto=format&fit=crop"} 
+              src={car.imageUrl || "/gac-m8.jpg"} 
               alt={`${car.make} ${car.model}`}
               className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
             />
@@ -148,7 +148,7 @@ export default function CarDetailsPage() {
             <div className="absolute bottom-6 left-6 right-6">
               <div className="flex items-center gap-3 mb-2">
                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md ${
-                  car.status === 'active' ? 'bg-orange-500/90 text-white' : 
+                  car.status === 'active' ? 'bg-teal-600/90 text-white' : 
                   car.status === 'sold' ? 'bg-emerald-500/90 text-white' : 
                   'bg-gray-500/90 text-white'
                 }`}>
@@ -205,7 +205,7 @@ export default function CarDetailsPage() {
                 <p className="text-white font-medium text-lg flex items-center gap-2">
                   {car.sellerName}
                   {car.isTopSeller && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-amber-500/30 text-[10px] font-black text-amber-400 uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="Premium Verified Seller">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gradient-to-r from-amber-500/20 to-teal-700/20 border border-amber-500/30 text-[10px] font-black text-amber-400 uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="Premium Verified Seller">
                       <Award className="size-3" /> Top Seller
                     </span>
                   )}
@@ -234,7 +234,7 @@ export default function CarDetailsPage() {
             <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 border-b border-white/5 flex items-center justify-between">
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Time Left</p>
-                <div className={`text-xl font-bold flex items-center ${isAuctionActive ? 'text-orange-400' : 'text-slate-500'}`}>
+                <div className={`text-xl font-bold flex items-center ${isAuctionActive ? 'text-amber-500' : 'text-slate-500'}`}>
                   <Clock className="size-5 mr-2" />
                   {getTimeRemaining(car.auctionEndTime)}
                 </div>
@@ -254,9 +254,9 @@ export default function CarDetailsPage() {
               </div>
 
               {car.buyItNowPrice && (
-                <div className="mb-8 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-bl-full" />
-                  <p className="text-orange-400 text-xs font-bold uppercase tracking-wider mb-1">Buy It Now</p>
+                <div className="mb-8 p-4 bg-teal-600/10 border border-teal-600/20 rounded-xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-teal-600/10 rounded-bl-full" />
+                  <p className="text-amber-500 text-xs font-bold uppercase tracking-wider mb-1">Buy It Now</p>
                   <p className="text-xl font-bold text-white">${car.buyItNowPrice.toLocaleString()}</p>
                 </div>
               )}
@@ -273,7 +273,7 @@ export default function CarDetailsPage() {
                         placeholder={`Min ${currentMinimumBid}`}
                         value={bidAmount}
                         onChange={(e) => setBidAmount(e.target.value)}
-                        className="pl-10 bg-slate-950/50 border-white/10 text-white text-lg h-14 rounded-xl focus:border-orange-500 focus:ring-orange-500/20"
+                        className="pl-10 bg-slate-950/50 border-white/10 text-white text-lg h-14 rounded-xl focus:border-teal-600 focus:ring-teal-600/20"
                       />
                     </div>
                     <p className="text-xs text-slate-500 mt-1">Enter at least ${currentMinimumBid.toLocaleString()}</p>
@@ -282,7 +282,7 @@ export default function CarDetailsPage() {
                   <Button 
                     type="submit" 
                     disabled={isBidding}
-                    className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white h-14 text-lg font-bold rounded-xl shadow-lg shadow-orange-900/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-500 hover:to-teal-300 text-white h-14 text-lg font-bold rounded-xl shadow-lg shadow-teal-900/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {isBidding ? <Loader2 className="size-5 animate-spin mr-2" /> : null}
                     Place Bid
@@ -331,8 +331,8 @@ export default function CarDetailsPage() {
                     <li key={bid.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
                       <div className="flex items-center gap-3">
                         {index === 0 ? (
-                          <div className="size-8 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
-                            <Trophy className="size-4 text-orange-400" />
+                          <div className="size-8 rounded-full bg-teal-600/20 flex items-center justify-center border border-teal-600/30">
+                            <Trophy className="size-4 text-amber-500" />
                           </div>
                         ) : (
                           <div className="size-8 rounded-full bg-slate-800 flex items-center justify-center border border-white/5 text-slate-400 text-xs font-bold">
@@ -348,7 +348,7 @@ export default function CarDetailsPage() {
                           </p>
                         </div>
                       </div>
-                      <div className={`font-bold ${index === 0 ? 'text-orange-400' : 'text-slate-400'}`}>
+                      <div className={`font-bold ${index === 0 ? 'text-amber-500' : 'text-slate-400'}`}>
                         ${bid.amount.toLocaleString()}
                       </div>
                     </li>

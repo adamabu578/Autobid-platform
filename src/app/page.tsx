@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./components/Root";
-import { signup, signin, getCars, type Car } from "./utils/api";
+import { signup, signin, getCars, getUserBids, getCar, type Car } from "./utils/api";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Label } from "./components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from "./components/ui/dialog";
-import { Search, UserRound, ArrowRight, ShieldCheck, Trophy, Zap, Gavel, Sparkles } from "lucide-react";
+import { Search, MapPin, Calendar, Car as CarIcon, ShieldCheck, HeadphonesIcon, Clock, Award, Star, Facebook, Twitter, Instagram, Linkedin, Apple, Play, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "./components/ui/theme-toggle";
 
@@ -29,14 +29,34 @@ export default function Landing() {
 
   // Marketing states
   const [previewCars, setPreviewCars] = useState<Car[]>([]);
+  const [heroCar, setHeroCar] = useState<Car | null>(null);
+  const [heroBidAmount, setHeroBidAmount] = useState<number | null>(null);
 
   useEffect(() => {
-    // Redirect if already logged in
+    // Redirect logic: Sellers auto-redirect to dashboard, Buyers stay to see personalized dynamic landing page
     if (user && userRole) {
-      if (userRole === 'buyer') router.push('/cars');
-      else if (userRole === 'seller') router.push('/seller/dashboard');
+      if (userRole === 'seller') router.push('/seller/dashboard');
     }
   }, [user, userRole, router]);
+
+  useEffect(() => {
+    const fetchPersonalizedHero = async () => {
+      if (userRole === 'buyer') {
+        try {
+          const userBids = await getUserBids();
+          if (userBids && userBids.length > 0) {
+            const activeBid = userBids[0];
+            const carData = await getCar(activeBid.carId);
+            setHeroCar(carData);
+            setHeroBidAmount(activeBid.amount);
+          }
+        } catch (e) {
+          console.error("Personalized hero load failed", e);
+        }
+      }
+    };
+    if (user) fetchPersonalizedHero();
+  }, [user, userRole]);
 
   useEffect(() => {
     const loadPreview = async () => {
@@ -96,338 +116,505 @@ export default function Landing() {
     }
   };
 
-  // Auth Modal Design (Glassmorphic)
+  // Auth Modal
   const AuthModal = ({ triggerElement }: { triggerElement: React.ReactNode }) => (
     <Dialog open={authOpen} onOpenChange={setAuthOpen}>
-      <DialogTrigger asChild>
-        {triggerElement}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-white/90 dark:bg-black/80 backdrop-blur-3xl border border-slate-200 dark:border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.2)] dark:shadow-[0_0_50px_rgba(0,0,0,0.8)] p-0 overflow-hidden rounded-[2rem]">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-500/20 to-amber-500/20 rounded-bl-full -mr-8 -mt-8 pointer-events-none blur-3xl opacity-50" />
-        <div className="p-8 pb-10 relative z-10">
-          <DialogHeader className="mb-8">
-            <DialogTitle className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+      <DialogTrigger asChild>{triggerElement}</DialogTrigger>
+      <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-none shadow-2xl rounded-3xl p-6">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-3xl font-black text-teal-800 dark:text-teal-400 tracking-tight">
               {isLogin ? 'Welcome Back' : 'Join AutoBids'}
             </DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-zinc-400 font-medium mt-2">
-              {isLogin ? 'Sign in to place bids and track your premium auctions' : 'Create your account to unlock the world\'s finest vehicles'}
+            <DialogDescription className="text-slate-500 font-medium">
+              Access the most exclusive automotive auction marketplace.
             </DialogDescription>
           </DialogHeader>
 
           <Tabs value={isLogin ? 'login' : 'signup'} onValueChange={(v) => setIsLogin(v === 'login')} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-100 dark:bg-white/5 p-1.5 rounded-xl">
-              <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-slate-500 dark:text-zinc-500 font-bold py-2.5 transition-all shadow-sm dark:shadow-none">Login</TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-slate-500 dark:text-zinc-500 font-bold py-2.5 transition-all shadow-sm dark:shadow-none">Register</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8 bg-transparent p-0 gap-4">
+              <TabsTrigger value="login" className="rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 data-[state=active]:bg-teal-600 dark:data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-extrabold py-3.5 border-2 border-transparent data-[state=active]:border-teal-500 transition-all hover:bg-slate-200 dark:hover:bg-slate-700">Login</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 data-[state=active]:bg-teal-600 dark:data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg font-extrabold py-3.5 border-2 border-transparent data-[state=active]:border-teal-500 transition-all hover:bg-slate-200 dark:hover:bg-slate-700">Register</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
-              <form onSubmit={handleSignin} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="text-slate-500 dark:text-zinc-400 ml-1 text-[10px] uppercase font-black tracking-widest">Email</Label>
-                  <Input id="login-email" type="email" placeholder="collector@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-12 rounded-xl focus:border-orange-500 font-medium placeholder:text-slate-400 dark:placeholder:text-zinc-600" required />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center ml-1"><Label htmlFor="login-password" className="text-slate-500 dark:text-zinc-400 text-[10px] uppercase font-black tracking-widest">Password</Label></div>
-                  <Input id="login-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-12 rounded-xl focus:border-orange-500 font-medium placeholder:text-slate-400 dark:placeholder:text-zinc-600" required />
-                </div>
-                <Button type="submit" disabled={loading} className="w-full bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-zinc-200 h-14 font-black mt-2 rounded-xl transition-transform hover:scale-[1.02]">
-                  {loading ? <div className="size-5 border-2 border-white/30 dark:border-black/30 border-t-transparent dark:border-t-black rounded-full animate-spin" /> : 'Sign In Securely'}
+              <form onSubmit={handleSignin} className="space-y-4">
+                <Input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border-transparent h-12 rounded-xl focus:border-amber-500" required />
+                <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border-transparent h-12 rounded-xl focus:border-amber-500" required />
+                <Button type="submit" disabled={loading} className="w-full bg-amber-500 text-white hover:bg-amber-600 h-12 font-bold rounded-xl shadow-lg shadow-amber-500/20">
+                  {loading ? <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Sign In'}
                 </Button>
-
-                <div className="relative my-8 text-center">
-                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-200 dark:border-white/10" /></div>
-                  <span className="relative bg-white dark:bg-zinc-950 px-4 text-[10px] uppercase font-black text-slate-400 dark:text-zinc-500 tracking-widest rounded-full border border-slate-200 dark:border-white/10">Quick Access</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button type="button" variant="outline" onClick={() => handleDemoLogin('buyer')} disabled={loading} className="border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/10 h-11 rounded-xl font-bold bg-white dark:bg-white/5 border-b-2">Buyer Demo</Button>
-                  <Button type="button" variant="outline" onClick={() => handleDemoLogin('seller')} disabled={loading} className="border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/10 h-11 rounded-xl font-bold bg-white dark:bg-white/5 border-b-2">Seller Demo</Button>
+                
+                <div className="pt-4 grid grid-cols-2 gap-3">
+                  <Button type="button" variant="outline" onClick={() => handleDemoLogin('buyer')} className="w-full rounded-xl border-slate-200 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800">Buyer Demo</Button>
+                  <Button type="button" variant="outline" onClick={() => handleDemoLogin('seller')} className="w-full rounded-xl border-slate-200 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800">Seller Demo</Button>
                 </div>
               </form>
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name" className="text-slate-500 dark:text-zinc-400 ml-1 text-[10px] uppercase font-black tracking-widest">Full Name</Label>
-                  <Input id="signup-name" value={name} onChange={(e) => setName(e.target.value)} className="bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-12 rounded-xl focus:border-orange-500" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email" className="text-slate-500 dark:text-zinc-400 ml-1 text-[10px] uppercase font-black tracking-widest">Email</Label>
-                  <Input id="signup-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-12 rounded-xl focus:border-orange-500" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password" className="text-slate-500 dark:text-zinc-400 ml-1 text-[10px] uppercase font-black tracking-widest">Password</Label>
-                  <Input id="signup-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-12 rounded-xl focus:border-orange-500" required />
-                </div>
-                <div className="space-y-2 pb-2">
-                  <Label className="text-slate-500 dark:text-zinc-400 ml-1 text-[10px] uppercase font-black tracking-widest">I want to...</Label>
-                  <Select value={role} onValueChange={(v: any) => setRole(v)}>
-                    <SelectTrigger className="bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white h-12 rounded-xl font-bold"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-zinc-950 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-medium rounded-xl">
-                      <SelectItem value="buyer">Buy Cars (Bidder)</SelectItem>
-                      <SelectItem value="seller">Sell Cars (Dealer)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white dark:text-black h-14 font-black mt-2 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-transform hover:scale-[1.02]">
-                  {loading ? <div className="size-5 border-2 border-white/30 dark:border-black/30 border-t-white dark:border-t-black rounded-full animate-spin" /> : 'Create Account'}
+              <form onSubmit={handleSignup} className="space-y-4">
+                <Input placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border-transparent h-12 rounded-xl focus:border-amber-500" required />
+                <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border-transparent h-12 rounded-xl focus:border-amber-500" required />
+                <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border-transparent h-12 rounded-xl focus:border-amber-500" required />
+                <Select value={role} onValueChange={(v: any) => setRole(v)}>
+                  <SelectTrigger className="bg-slate-50 border-transparent h-12 rounded-xl font-bold dark:bg-slate-800"><SelectValue /></SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="buyer">Buy Cars</SelectItem>
+                    <SelectItem value="seller">Sell Cars</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button type="submit" disabled={loading} className="w-full bg-teal-600 text-white hover:bg-teal-700 h-12 font-bold rounded-xl shadow-lg shadow-teal-600/20">
+                  {loading ? <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Create Account'}
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
-        </div>
       </DialogContent>
     </Dialog>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-white selection:bg-orange-500/30 font-sans overflow-x-hidden transition-colors duration-500">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-amber-500 selection:text-white overflow-x-hidden">
       
-      {/* Floating Glass Nav */}
-      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-6 lg:px-12 pointer-events-none">
-        <nav className="pointer-events-auto w-full bg-white/80 dark:bg-[#0a0f1c]/80 backdrop-blur-2xl rounded-full px-6 lg:px-10 py-3 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-colors duration-500">
-           <div className="flex items-center gap-3 pl-2">
-             <div className="bg-orange-500 p-2 rounded-xl shadow-[0_0_10px_rgba(245,158,11,0.5)]">
-               <Gavel className="size-4 text-white" />
-             </div>
-             <span className="text-xl lg:text-2xl font-black tracking-tighter text-slate-900 dark:text-white">Auto<span className="text-orange-500">Bids</span></span>
-           </div>
-           
-           <div className="hidden lg:flex items-center gap-10 text-[11px] uppercase font-bold tracking-widest text-slate-500 dark:text-zinc-400">
-             <a href="#" className="text-slate-900 dark:text-white">Auctions</a>
-             <a href="#sell" className="hover:text-slate-900 dark:hover:text-white transition-colors">Sell</a>
-             <a href="#features" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
-             <a href="#about" className="hover:text-slate-900 dark:hover:text-white transition-colors">About</a>
-           </div>
-           
-           <div className="flex items-center gap-4">
-             <button className="hidden sm:flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
-               <Search className="size-4" />
-             </button>
-             <ThemeToggle />
-             <AuthModal triggerElement={
-               <button className="bg-slate-900 dark:bg-white text-white dark:text-black px-6 lg:px-8 py-2.5 rounded-full text-xs font-black uppercase tracking-widest hover:scale-105 transition-transform">
-                 Sign In
-               </button>
-             }/>
-           </div>
-        </nav>
-      </div>
+      {/* Navbar */}
+      <nav className="absolute top-0 w-full z-50 py-6 transition-colors duration-500">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-full bg-teal-600 flex items-center justify-center">
+               <CarIcon className="size-5 text-white" />
+            </div>
+            <span className="text-xl font-black text-teal-900 dark:text-white tracking-tight">AUTOBIDS</span>
+          </div>
+          
+          <div className="hidden lg:flex items-center gap-10 font-bold text-sm text-teal-950 dark:text-slate-200">
+            <a href="#" className="hover:text-amber-500 transition-colors">Home</a>
+            <a href="#" className="hover:text-amber-500 transition-colors">Why Choose Us</a>
+            <a href="#" className="hover:text-amber-500 transition-colors">Auctions</a>
+            <a href="#" className="hover:text-amber-500 transition-colors">About Us</a>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <AuthModal triggerElement={
+               <button className="hidden sm:block px-6 py-2.5 rounded-full border-2 border-teal-700 text-teal-800 dark:text-teal-200 font-bold text-sm hover:bg-teal-50 dark:hover:bg-slate-800 transition-colors">Login</button>
+            }/>
+            <AuthModal triggerElement={
+               <button className="px-6 py-3 rounded-full bg-amber-500 text-white font-bold text-sm shadow-lg shadow-amber-500/30 hover:-translate-y-0.5 transition-transform">Register</button>
+            }/>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-44 pb-32 md:pb-40 flex flex-col items-center justify-center min-h-screen">
-        {/* Massive Background Image Bleeding Edge */}
-        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-          <div className="absolute inset-0 bg-black/40 dark:bg-black/60 z-10 transition-colors duration-500" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-50 dark:from-black to-transparent z-10 transition-colors duration-500" />
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-slate-50 dark:from-black to-transparent z-10 transition-colors duration-500" />
-          <img 
-            src="https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?q=80&w=2500&auto=format&fit=crop" 
-            alt="Exotic Car Background" 
-            className="w-full h-full object-cover md:object-center object-[80%_center]"
-          />
-        </div>
+      <section className="relative w-full min-h-[85vh] flex items-center bg-white dark:bg-slate-900 overflow-hidden pt-32 pb-20">
         
-        {/* Cinematic Ambient Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] lg:w-[1200px] h-[600px] bg-gradient-to-tr from-orange-600/50 to-amber-500/30 blur-[150px] rounded-[100%] pointer-events-none mix-blend-screen opacity-60 z-10 transition-opacity duration-500" />
-        
-        <div className="relative z-20 text-center w-full max-w-7xl mx-auto px-6 mt-10">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-orange-500/30 bg-black/30 backdrop-blur-md mb-10 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-            <Sparkles className="size-4 text-orange-400" />
-            <span className="text-orange-400 text-[10px] sm:text-xs font-black uppercase tracking-widest">The New Era of Automotive Auctions</span>
-          </div>
-          
-          <h1 className="text-6xl md:text-[6rem] lg:text-[8.5rem] font-black tracking-tighter leading-[0.9] text-white drop-shadow-2xl mb-8">
-            Collect the <br className="hidden md:block"/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500">Extraordinary.</span>
-          </h1>
-          
-          <p className="text-lg md:text-xl lg:text-2xl text-slate-200 font-medium max-w-3xl mx-auto mb-14 leading-relaxed drop-shadow-md">
-            The world's most exclusive marketplace for vetted luxury, exotic, and classic vehicles. Bid live. Win securely.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <AuthModal triggerElement={
-              <button className="w-full sm:w-auto bg-white text-black px-10 h-16 rounded-full text-sm font-black uppercase tracking-widest hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-[0_10px_40px_rgba(255,255,255,0.2)] group">
-                Start Bidding <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            }/>
-            <AuthModal triggerElement={
-              <button className="w-full sm:w-auto bg-black/40 border border-white/20 backdrop-blur-md text-white px-10 h-16 rounded-full text-sm font-black uppercase tracking-widest hover:bg-black/60 transition-colors shadow-lg">
-                Sell Your Vehicle
-              </button>
-            }/>
-          </div>
-        </div>
-      </section>
+        {/* Abstract Background Shapes */}
+        <div className="absolute top-0 right-[-10%] w-[60%] h-[120%] bg-amber-400 rotate-[-12deg] transform origin-top-right z-0 shadow-2xl skew-x-[-5deg]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[120%] h-[40%] bg-teal-700 rotate-[-8deg] transform origin-bottom-left z-0" />
+        <div className="absolute top-[-20%] left-[-10%] w-[40%] h-[50%] bg-slate-50 dark:bg-slate-800 rotate-[15deg] transform z-0 opacity-50 rounded-full blur-3xl" />
 
-      {/* Social Proof Strip */}
-      <section className="py-12 border-b border-slate-200 dark:border-white/10 bg-white dark:bg-black relative z-20 transition-colors duration-500">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-center gap-12 sm:gap-16 lg:gap-32 opacity-60 dark:opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
-           <span className="text-xl lg:text-2xl font-black font-serif tracking-tight text-slate-900 dark:text-white">MotorTrend</span>
-           <span className="text-xl lg:text-2xl font-black tracking-tighter uppercase text-slate-900 dark:text-white">Bloomberg</span>
-           <span className="text-xl lg:text-2xl font-black italic tracking-tighter text-slate-900 dark:text-white">TopGear</span>
-           <span className="text-xl lg:text-2xl font-black tracking-widest text-transparent hidden dark:block" style={{ WebkitTextStroke: '1px white' }}>FORBES</span>
-           <span className="text-xl lg:text-2xl font-black tracking-widest text-transparent block dark:hidden" style={{ WebkitTextStroke: '1px black' }}>FORBES</span>
-           <span className="text-xl lg:text-2xl font-black tracking-tighter uppercase text-slate-900 dark:text-white">Evo</span>
-        </div>
-      </section>
-
-      {/* Bento Grid Features */}
-      <section id="features" className="py-32 bg-slate-50 dark:bg-[#030409] transition-colors duration-500">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-24 md:flex items-end justify-between">
-            <div className="max-w-2xl">
-              <h2 className="text-5xl lg:text-[4rem] font-black tracking-tighter leading-[0.9] text-slate-900 dark:text-white">
-                Uncompromising <br/>
-                <span className="text-slate-400 dark:text-zinc-500">Standards.</span>
-              </h2>
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10 w-full">
+          {/* Hero Text */}
+          <div className="flex flex-col justify-center max-w-lg pt-10">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/40 dark:bg-slate-800/40 backdrop-blur-md mb-8 border border-white/50 dark:border-slate-700 w-max shadow-sm">
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-teal-900 dark:text-teal-400">The New Era of Automotive Auctions</span>
             </div>
-            <p className="text-slate-500 dark:text-zinc-500 text-lg md:text-xl max-w-sm mt-8 md:mt-0 font-medium leading-relaxed">
-              We removed the friction from high-end vehicle sales. Experience absolute transparency and ironclad security.
+            
+            <h1 className="text-6xl lg:text-[5rem] font-extrabold text-teal-950 dark:text-white leading-[1.0] tracking-tight mb-6">
+              Collect the <br/>
+              <span className="text-amber-500 drop-shadow-sm">Extraordinary.</span>
+            </h1>
+            
+            <p className="text-slate-700 dark:text-slate-300 text-lg md:text-xl font-medium mb-10 max-w-md leading-relaxed">
+              The world's most exclusive marketplace for vetted luxury, exotic, and classic vehicles. Bid live. Win securely.
             </p>
+            
+            <div className="flex font-bold flex-col sm:flex-row gap-4 mb-2">
+               <AuthModal triggerElement={
+                 <button className="flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-xl text-sm shadow-xl hover:scale-105 transition-transform">
+                   Start Bidding
+                 </button>
+               } />
+               <AuthModal triggerElement={
+                 <button className="flex items-center justify-center gap-2 bg-white/50 dark:bg-slate-800 backdrop-blur-sm border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white px-8 py-4 rounded-xl text-sm hover:bg-white dark:hover:bg-slate-700 transition-colors">
+                   Sell Your Vehicle
+                 </button>
+               } />
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Feature 1 - Spanning 2 cols */}
-            <div className="md:col-span-2 bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none rounded-[2.5rem] p-10 lg:p-14 relative overflow-hidden group transition-colors duration-500">
-               <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-               <ShieldCheck className="size-14 text-orange-500 mb-10" strokeWidth={1.5} />
-               <h3 className="text-4xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">100% Verified Inventory</h3>
-               <p className="text-slate-500 dark:text-zinc-400 text-lg max-w-md leading-relaxed font-medium">Every vehicle on our platform undergoes a rigorous multi-point inspection, title check, and seller background verification. We guarantee authenticity.</p>
-               <img src="https://images.unsplash.com/photo-1555097479-7f5519ab76a3?q=80&w=800&auto=format&fit=crop" className="absolute right-0 bottom-0 w-1/2 h-full object-cover rounded-tl-full opacity-10 dark:opacity-30 group-hover:opacity-40 dark:group-hover:opacity-50 transition-all duration-700 mix-blend-luminosity hover:mix-blend-normal mask-image-gradient" />
-            </div>
-            
-            {/* Feature 2 */}
-            <div className="bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none rounded-[2.5rem] p-10 relative overflow-hidden group transition-colors duration-500">
-               <Zap className="size-12 text-slate-800 dark:text-white mb-8 group-hover:text-orange-500 transition-colors" strokeWidth={1.5} />
-               <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Live Bidding</h3>
-               <p className="text-slate-500 dark:text-zinc-400 text-[15px] leading-relaxed font-medium">Join high-stakes live auctions from anywhere in the world with zero-latency streaming and real-time bid execution.</p>
-            </div>
-            
-            {/* Feature 3 */}
-            <div className="bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none rounded-[2.5rem] p-10 relative overflow-hidden group transition-colors duration-500">
-               <Trophy className="size-12 text-slate-800 dark:text-white mb-8 group-hover:text-orange-500 transition-colors" strokeWidth={1.5} />
-               <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Win Securely</h3>
-               <p className="text-slate-500 dark:text-zinc-400 text-[15px] leading-relaxed font-medium">Our integrated escrow service holds funds safely until you receive the keys, ensuring total peace of mind.</p>
-            </div>
-            
-            {/* Feature 4 - Spanning 2 cols (Sell Promo) */}
-            <div className="md:col-span-2 bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none rounded-[2.5rem] p-10 lg:p-14 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between group transition-colors duration-500">
-               <div className="relative z-10 max-w-sm">
-                 <h3 className="text-4xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">Maximize Your Value</h3>
-                 <p className="text-slate-500 dark:text-zinc-400 text-lg leading-relaxed font-medium">Tap into our global network of verified collectors to fetch the absolute best price for your masterpiece.</p>
-                 <AuthModal triggerElement={
-                   <button className="mt-10 text-orange-600 dark:text-orange-500 font-black flex items-center gap-3 hover:gap-5 transition-all text-xs uppercase tracking-widest bg-orange-500/10 hover:bg-orange-500/20 px-6 py-3 rounded-full border border-orange-500/20">
-                     List your vehicle <ArrowRight className="size-4" />
-                   </button>
-                 } />
-               </div>
-               
-               {/* Decorative Graphic Element */}
-               <div className="hidden md:flex relative size-56 shrink-0 mr-8">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-orange-600 to-amber-400 rounded-full blur-[40px] opacity-10 dark:opacity-20 group-hover:opacity-30 dark:group-hover:opacity-40 transition-opacity duration-700" />
-                  <div className="absolute inset-2 bg-slate-100 dark:bg-[#030409] rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center flex-col shadow-2xl overflow-hidden transition-colors duration-500">
-                    <div className="absolute inset-0 opacity-10 dark:opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, currentColor 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
-                    <span className="text-7xl font-black text-slate-900 dark:text-white tracking-tighter">0%</span>
-                    <span className="text-[10px] uppercase font-black tracking-widest text-orange-600 dark:text-orange-500 mt-2 z-10">Upfront Fee</span>
-                  </div>
-               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Live Auctions Streamed Grid */}
-      <section id="auctions" className="py-32 bg-white dark:bg-black border-y border-slate-200 dark:border-white/5 transition-colors duration-500">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="relative flex size-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" /><span className="relative inline-flex rounded-full size-2.5 bg-red-500" /></span>
-                <span className="text-red-500 text-[10px] font-black uppercase tracking-widest">Streaming Now</span>
-              </div>
-              <h2 className="text-5xl lg:text-[4rem] font-black tracking-tighter text-slate-900 dark:text-white">Trending Auctions</h2>
-            </div>
-            <AuthModal triggerElement={
-              <button className="text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white font-black uppercase text-xs tracking-widest transition-colors flex items-center gap-2 group border border-slate-200 dark:border-white/10 px-6 py-3 rounded-full hover:bg-slate-50 dark:hover:bg-white/5">
-                View All Inventory <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            }/>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {previewCars.length > 0 ? previewCars.map((car) => (
-              <div key={car.id} className="group cursor-pointer bg-slate-50 dark:bg-[#0a0f1c] rounded-[2rem] p-3 border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-colors shadow-sm dark:shadow-none" onClick={() => setAuthOpen(true)}>
-                <div className="w-full aspect-[4/3] rounded-[1.5rem] overflow-hidden mb-6 relative">
-                  <img src={car.imageUrl} alt={car.make} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                  
-                  {/* Status pill */}
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-xl text-white px-4 py-2 rounded-full text-[10px] font-black border border-white/10 flex items-center gap-2 uppercase tracking-widest">
-                     <span className="size-1.5 rounded-full bg-orange-500 animate-pulse" /> Ending Soon
-                  </div>
+          {/* Hero Image (Car overlapping the graphics) */}
+          <div className="relative flex justify-end items-center h-full min-h-[300px] lg:min-h-[500px]">
+             {/* Info Tooltip 1 */}
+             <div className="absolute top-[20%] left-0 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-xl z-20 flex flex-col items-center animate-bounce duration-3000">
+                <span className="text-[10px] font-black text-amber-500 uppercase">Most Flexible</span>
+                <span className="text-xs font-bold text-slate-800">Bidding Plan</span>
+             </div>
+             
+             {/* Info Tooltip 2 */}
+             <div className="absolute bottom-[20%] left-[20%] bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-xl z-20 flex flex-col items-center animate-pulse">
+                <span className="text-[10px] font-black text-teal-600 uppercase">Easy to verify</span>
+                <span className="text-xs font-bold text-slate-800">Clear History</span>
+             </div>
+                          <div className="relative z-10 w-full lg:w-[110%] ml-auto transform lg:translate-x-8 lg:-translate-y-4">
+                <img 
+                  src={heroCar?.imageUrl || "/benz.jpg"} 
+                  alt="Hero Sports Car" 
+                  className="w-full h-[250px] md:h-[350px] lg:h-[450px] object-cover rounded-lg shadow-2xl border-4 border-white/30 dark:border-slate-700/50"
+                />
+                
+                {/* Live Bidding Indicator */}
+                <div className="absolute top-4 md:top-6 right-4 md:right-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-full shadow-2xl border border-white/50 dark:border-slate-700/50 flex items-center gap-2.5 z-20 transition-transform hover:scale-105 cursor-pointer">
+                   <div className="relative flex size-3">
+                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                     <span className="relative inline-flex rounded-full size-3 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
+                   </div>
+                   <span className="text-[11px] font-black text-slate-800 dark:text-white uppercase tracking-widest mt-0.5">Live Bidding</span>
                 </div>
                 
-                <div className="px-5 pb-5">
-                  <h3 className="font-black text-2xl text-slate-900 dark:text-white mb-2 group-hover:text-orange-500 transition-colors tracking-tight">{car.year} {car.make} {car.model}</h3>
-                  <p className="text-slate-500 dark:text-zinc-500 text-[11px] font-black uppercase tracking-widest mb-6 border-b border-slate-200 dark:border-white/5 pb-6">{car.mileage.toLocaleString()} mi • {car.condition}</p>
-                  
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <div className="text-[10px] text-slate-500 dark:text-zinc-500 uppercase font-black tracking-widest mb-1">Current Bid</div>
-                      <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">${car.startingPrice.toLocaleString()}</div>
-                    </div>
-                    <button className="size-12 rounded-full bg-slate-900 dark:bg-white text-white dark:text-black flex items-center justify-center group-hover:bg-orange-500 dark:group-hover:bg-orange-500 group-hover:text-white transition-colors shadow-md dark:shadow-none">
-                      <ArrowRight className="size-5 -rotate-45" />
-                    </button>
-                  </div>
+                {/* Current Price Banner */}
+                <div className="absolute bottom-4 md:bottom-6 right-4 md:right-8 bg-slate-900/80 dark:bg-slate-900/90 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 flex flex-col items-start z-20 transition-transform hover:scale-105 cursor-pointer">
+                   <span className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">{heroCar ? 'Your Active Bid' : 'Current Bid'}</span>
+                   <span className="text-xl md:text-3xl font-black text-emerald-400">₦ {heroBidAmount ? heroBidAmount.toLocaleString() : "42,500,000"}</span>
                 </div>
               </div>
-            )) : (
-              [1, 2, 3].map(i => <div key={i} className="bg-slate-100 dark:bg-[#0a0f1c] rounded-[2rem] aspect-[3/4] animate-pulse border border-slate-200 dark:border-white/5" />)
-            )}
           </div>
         </div>
       </section>
 
-      {/* Epic Footer CTA */}
-      <footer className="w-full bg-slate-50 dark:bg-[#030409] pt-40 pb-12 relative overflow-hidden transition-colors duration-500">
-        {/* Massive Text Background */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full overflow-hidden flex justify-center opacity-[0.03] dark:opacity-[0.03] text-slate-900 dark:text-white pointer-events-none select-none">
-          <span className="text-[20rem] font-black whitespace-nowrap leading-none tracking-tighter">AUTOBIDS</span>
-        </div>
-        
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center mb-40">
-          <h2 className="text-6xl md:text-[6rem] lg:text-[7.5rem] font-black tracking-tighter mb-10 leading-[0.9] text-slate-900 dark:text-white">
-            Ready to <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-br from-slate-400 to-slate-600 dark:from-zinc-300 dark:to-zinc-600">hunt?</span>
-          </h2>
-          <p className="text-xl md:text-2xl text-slate-500 dark:text-zinc-500 mb-14 max-w-2xl mx-auto font-medium leading-relaxed">
-            Create a free account today to bid, list, and drive the world's absolute finest vehicles.
-          </p>
+      {/* Trusted Brands Strip */}
+      <section className="bg-white dark:bg-slate-900 py-10 relative z-20 border-b border-slate-100 dark:border-slate-800 transition-colors duration-500">
+         <div className="max-w-7xl mx-auto px-6 text-center">
+            <p className="text-sm font-bold text-slate-500 mb-6">Trusted by more than 50+ luxury dealerships</p>
+            <div className="flex flex-wrap items-center justify-center gap-12 opacity-50 grayscale">
+               {/* Simulating Brand Logos with distinct typographic shapes */}
+               <span className="text-3xl font-serif font-black tracking-widest text-slate-800 dark:text-white">TESLA</span>
+               <span className="text-2xl font-black italic text-slate-800 dark:text-white">BMW</span>
+               <span className="text-2xl font-black text-slate-800 dark:text-white tracking-widest uppercase">Porsche</span>
+               <span className="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tighter">Audi</span>
+               <span className="text-2xl font-black text-slate-800 dark:text-white uppercase">Ferrari</span>
+            </div>
+         </div>
+      </section>
+
+      {/* Floating Filter Bar */}
+      <div className="max-w-5xl mx-auto px-6 relative -mt-6 z-30">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl md:rounded-full shadow-2xl p-4 md:p-3 flex flex-col md:flex-row items-center border border-slate-100 dark:border-slate-700">
+          <div className="w-full md:flex-1 py-3 md:py-0 px-6 min-w-0 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 flex items-center gap-3">
+             <MapPin className="size-5 md:size-4 text-teal-600 shrink-0" />
+             <div className="flex flex-col w-full">
+               <span className="text-[10px] text-slate-400 font-bold uppercase">City / Region</span>
+               <input type="text" placeholder="Choose a location" className="bg-transparent text-sm font-bold text-slate-800 dark:text-white focus:outline-none w-full placeholder:text-slate-800 dark:placeholder:text-white" />
+             </div>
+          </div>
+          <div className="w-full md:flex-1 py-3 md:py-0 px-6 min-w-0 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 flex items-center gap-3">
+             <Calendar className="size-5 md:size-4 text-teal-600 shrink-0" />
+             <div className="flex flex-col w-full">
+               <span className="text-[10px] text-slate-400 font-bold uppercase">Production Year</span>
+               <input type="text" placeholder="Any Year" className="bg-transparent text-sm font-bold text-slate-800 dark:text-white focus:outline-none w-full placeholder:text-slate-800 dark:placeholder:text-white" />
+             </div>
+          </div>
+          <div className="w-full md:flex-1 py-3 md:py-0 px-6 min-w-0 flex items-center gap-3">
+             <CarIcon className="size-5 md:size-4 text-teal-600 shrink-0" />
+             <div className="flex flex-col w-full">
+               <span className="text-[10px] text-slate-400 font-bold uppercase">Vehicle Make</span>
+               <input type="text" placeholder="Type a car" className="bg-transparent text-sm font-bold text-slate-800 dark:text-white focus:outline-none w-full placeholder:text-slate-800 dark:placeholder:text-white" />
+             </div>
+          </div>
           <AuthModal triggerElement={
-            <button className="bg-slate-900 dark:bg-white text-white dark:text-black px-12 h-16 rounded-full text-[13px] font-black uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_10px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-              Join AutoBids Now
+            <button className="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold h-14 px-10 rounded-2xl md:rounded-full shadow-lg shrink-0 mt-4 md:mt-0 md:ml-2 transition-transform hover:scale-105">
+              Search
             </button>
           }/>
         </div>
-        
-        {/* Footer Bottom Bar */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 border-t border-slate-200 dark:border-white/10 pt-12 flex flex-col md:flex-row items-center justify-between gap-8 text-slate-500 dark:text-zinc-500 text-[11px] font-black tracking-widest uppercase">
-          <div className="flex items-center gap-3 md:mb-0">
-             <Gavel className="size-5 text-orange-500" />
-             <span className="text-slate-900 dark:text-white font-black text-sm tracking-tight">Auto<span className="text-orange-500">Bids</span></span>
-             <span className="ml-4 opacity-70">© {new Date().getFullYear()}</span>
+      </div>
+
+      {/* Features Section */}
+      <section className="py-24 lg:py-32 bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          
+          <div className="relative order-2 lg:order-1">
+            {/* Massive Green Backdrop abstract blob */}
+            <div className="absolute inset-0 bg-teal-600/10 rounded-full blur-3xl transform -translate-x-20 scale-150" />
+            <img 
+               src="/toyota.jpg" 
+               alt="Premium Auction Vehicle" 
+               className="relative z-10 w-full aspect-video lg:aspect-[4/3] object-cover rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-transform hover:scale-[1.02] duration-700"
+            />
           </div>
-          <div className="flex flex-wrap justify-center gap-10">
-            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Instagram</a>
-            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Twitter</a>
-            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a>
+          
+          <div className="flex flex-col relative z-20 order-1 lg:order-2">
+            <h2 className="text-3xl lg:text-5xl font-extrabold text-slate-800 dark:text-white mb-8 leading-[1.15] tracking-tight">
+              Uncompromising <span className="text-teal-600 dark:text-teal-400">Trust & Safety.</span> Built for collectors.
+            </h2>
+            
+            <div className="space-y-6">
+              <div className="flex gap-6">
+                <div className="size-12 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                  <Award className="size-6 stroke-[3]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Curated Inventory</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed">Every vehicle undergoes rigorous mechanical and historical verification before being approved for auction.</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-6">
+                <div className="size-12 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="size-6 stroke-[3]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Secure Escrow Protection</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed">Buyer funds are held safely in our escrow infrastructure until the vehicle title and keys are firmly in hand.</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-6">
+                <div className="size-12 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                  <Clock className="size-6 stroke-[3]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Live Bidding Engine</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed">Experience the thrill of real-time auctions with our zero-latency bidding architecture and dynamic extension logic.</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-6">
+                <div className="size-12 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                  <MapPin className="size-6 stroke-[3]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">White-glove Delivery</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed">Optional door-to-door enclosed transport ensures your new masterpiece arrives in pristine, showroom condition.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+      {/* Pick Your Car Slider Area */}
+      <section className="relative py-16 md:py-24 overflow-hidden">
+        {/* Massive Dual Color Behind Carousel */}
+        <div className="absolute inset-x-0 top-0 h-[85%] md:h-[80%] bg-[linear-gradient(135deg,#0d9488_50%,#ffbe0b_50.1%)] md:bg-[linear-gradient(108deg,#0d9488_40%,#ffbe0b_40.1%)] z-0 rounded-3xl mx-4 lg:mx-10" />
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center pt-8 md:pt-10 flex flex-col items-center">
+          <h2 className="text-3xl md:text-4xl text-white font-extrabold mb-2">Live Auctions Sneak Peek</h2>
+          <p className="text-white/80 text-xs font-black tracking-[0.2em] uppercase mb-8 md:mb-16">Trending Premium Vehicles</p>
+          
+          {/* Faux Carousel Visuals using Data */}
+          <div className="flex items-end justify-center gap-4 lg:gap-8 w-full h-[200px] md:h-[300px] mb-8 md:mb-12 relative px-4 text-center">
+             {/* Car 1 */}
+             <div className="hidden md:block w-[30%] opacity-50 scale-75 transform translate-y-8 brightness-75 hover:opacity-100 hover:scale-[0.8] transition-all cursor-pointer">
+               <img src="/bmw.jpg" className="w-full aspect-video md:h-[200px] object-cover rounded-md shadow-2xl" alt="Preview Car 1" />
+             </div>
+             
+             {/* Car 2 (Center Active Focus) */}
+             {previewCars[0] ? (
+               <div className="w-[95%] md:w-[50%] z-20 hover:scale-105 transition-transform cursor-pointer shadow-[0_40px_40px_rgba(0,0,0,0.5)] mx-auto rounded-md" onClick={() => setAuthOpen(true)}>
+                  <img src={previewCars[0].imageUrl} className="w-full h-[220px] md:h-[300px] object-cover rounded-md mx-auto ring-4 ring-white/20 dark:ring-slate-800/50" alt="Active Car" />
+               </div>
+             ) : (
+               <div className="w-[95%] md:w-[50%] h-[150px] md:h-[200px] bg-white/20 animate-pulse rounded-md mx-auto" />
+             )}
+             
+             {/* Car 3 */}
+             <div className="hidden md:block w-[30%] opacity-50 scale-75 transform translate-y-8 brightness-75 hover:opacity-100 hover:scale-[0.8] transition-all cursor-pointer">
+               <img src="/audi.jpg" className="w-full aspect-video md:h-[200px] object-cover rounded-md shadow-2xl" alt="Preview Car 3" />
+             </div>
+          </div>
+          
+          {/* Specs Block */}
+          <div className="flex items-center justify-center gap-8 md:gap-12 text-white pb-12 w-full">
+             <div className="flex flex-col items-center gap-2">
+               <div className="size-10 rounded-full border-2 border-white/30 flex items-center justify-center backdrop-blur-sm"><Clock className="size-4" /></div>
+               <span className="text-xs font-bold">300 km/h</span>
+             </div>
+             <div className="flex flex-col items-center gap-2">
+               <div className="size-10 rounded-full border-2 border-white/30 flex items-center justify-center backdrop-blur-sm"><Zap className="size-4" /></div>
+               <span className="text-xs font-bold">2 Secs</span>
+             </div>
+             <div className="flex flex-col items-center gap-2">
+               <div className="size-10 rounded-full border-2 border-white/30 flex items-center justify-center backdrop-blur-sm"><MapPin className="size-4" /></div>
+               <span className="text-xs font-bold">20 L / 100</span>
+             </div>
+          </div>
+          
+          {/* Price Pill Floating */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl md:rounded-full shadow-2xl p-3 md:px-6 md:py-4 flex items-center justify-between gap-3 md:gap-6 mt-[-30px] border border-slate-100 dark:border-slate-700 w-auto max-w-fit mx-auto transition-all relative z-30">
+             <div className="flex items-center gap-2 md:gap-4 border-r border-slate-200 dark:border-slate-700 pr-3 md:pr-6 shrink-0">
+                <div className="hidden sm:flex bg-slate-100 dark:bg-slate-700 p-2 rounded-lg">
+                  <ShieldCheck className="size-4 md:size-5 text-teal-600" />
+                </div>
+                <div className="text-left leading-none">
+                   <span className="text-xl md:text-2xl font-black text-slate-800 dark:text-white">${previewCars[0]?.startingPrice.toLocaleString() || "300"}</span>
+                   <span className="text-slate-400 text-[10px] md:text-xs font-bold block sm:inline sm:ml-1">/current bid</span>
+                </div>
+             </div>
+             <div className="flex gap-2 shrink-0">
+               <AuthModal triggerElement={<button className="px-4 md:px-5 py-2.5 md:py-3 rounded-sm md:rounded-full border-2 border-slate-200 dark:border-slate-600 text-[11px] md:text-sm font-bold text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition leading-none">View</button>} />
+               <AuthModal triggerElement={<button className="px-5 md:px-6 py-2.5 md:py-3 rounded-sm md:rounded-full bg-amber-500 text-white text-[11px] md:text-sm font-bold hover:bg-amber-600 shadow-md transition-colors leading-none tracking-wide">Place Bid</button>} />
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-32 bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
+        {/* Soft Blobs */}
+        <div className="absolute left-[-10%] top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-400/20 blur-[120px] rounded-full" />
+        <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-600/20 blur-[120px] rounded-full" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-800 dark:text-white mb-4">What people are saying</h2>
+            <p className="text-slate-500 font-medium">What our lovely customer said for our service</p>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-16">
+            {/* Left Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 shadow-xl border border-slate-100 dark:border-slate-800 max-w-lg relative">
+               {/* Quote Graphic */}
+               <div className="absolute top-6 left-6 text-6xl text-slate-100 dark:text-slate-800 font-serif font-black leading-none pointer-events-none">"</div>
+               <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed mb-8 relative z-10 pt-4">
+                 <span className="text-slate-800 dark:text-white font-bold">AutoBids made exploring exotic markets stress-free.</span> The verified inventory was perfect for navigating tight auction periods, and the escrow efficiency saved me money. Excellent service! Two thumbs up!
+               </p>
+               <div>
+                 <h4 className="text-xl font-bold text-slate-800 dark:text-white">Sophie L</h4>
+                 <p className="text-sm font-medium text-slate-500">Collector Enthusiast</p>
+               </div>
+            </div>
+            
+            {/* Right Picture Cluster */}
+            <div className="relative w-full max-w-md aspect-square rounded-full border-r-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center">
+               <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" className="absolute top-[10%] left-[20%] size-16 rounded-full border-4 border-white dark:border-slate-900 shadow-xl" />
+               <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=200&auto=format&fit=crop" className="absolute top-[30%] right-[10%] size-24 rounded-full border-4 border-white dark:border-slate-900 shadow-xl z-20" />
+               <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop" className="absolute bottom-[20%] left-[10%] size-20 rounded-full border-4 border-white dark:border-slate-900 shadow-xl z-10" />
+               <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop" className="absolute bottom-[10%] right-[30%] size-16 rounded-full border-4 border-white dark:border-slate-900 shadow-xl" />
+               <div className="size-32 rounded-full bg-teal-600/10 dark:bg-teal-600/30 blur-2xl absolute" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* App Download Banner */}
+      <section className="py-12 md:py-20 relative px-4 md:px-6 z-20">
+        <div className="max-w-6xl mx-auto bg-teal-600 rounded-[2.5rem] md:rounded-[3rem] overflow-hidden relative flex flex-col md:flex-row items-center border-[6px] md:border-[8px] border-white dark:border-slate-800 shadow-2xl">
+           
+           {/* Abstract BG lines inside banner */}
+           <div className="absolute inset-0 opacity-20 pointer-events-none">
+             <div className="absolute right-0 top-0 w-[50%] h-[150%] bg-white transform rotate-45 translate-x-1/3 -translate-y-1/4" />
+             <div className="absolute right-0 bottom-0 w-[50%] md:w-[60%] h-[150%] bg-amber-500 transform -rotate-45 translate-x-1/2 translate-y-1/4" />
+           </div>
+           
+           <div className="relative z-10 w-full md:w-1/2 p-6 pt-10 pb-0 md:p-16 md:pb-16 text-center md:text-left text-white">
+               <h2 className="text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
+                 Download AutoBids<br/>for <span className="text-amber-300">FREE</span>
+               </h2>
+               <p className="text-teal-100 font-medium mb-8 md:mb-10 text-base md:text-lg">For faster, easier bidding and exclusive inventory access.</p>
+               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start w-full">
+                 <button className="flex items-center justify-center gap-3 bg-white text-slate-900 px-6 py-3.5 rounded-xl font-bold hover:scale-105 transition-transform shadow-lg w-full sm:w-auto mt-2">
+                   <Apple className="size-6 fill-slate-900" /> App Store
+                 </button>
+                 <button className="flex items-center justify-center gap-3 bg-transparent border-2 border-white text-white px-6 py-3.5 rounded-xl font-bold hover:bg-white/10 transition-colors w-full sm:w-auto mt-2 md:mt-0">
+                   <Play className="size-6 fill-white" /> Google Play
+                 </button>
+               </div>
+             </div>
+             
+             <div className="flex-1 flex justify-center lg:justify-end relative z-10 w-full transform translate-y-6 md:translate-y-12">
+               <div className="bg-white rounded-t-[2rem] md:rounded-t-[2.5rem] p-2 md:p-3 shadow-2xl w-[220px] md:w-[260px] h-[350px] md:h-[420px] border-x-[6px] border-t-[6px] md:border-x-8 md:border-t-8 border-slate-900 mx-auto md:mr-0 relative">
+                  <div className="absolute top-0 inset-x-0 h-5 md:h-6 bg-slate-900 rounded-b-xl md:rounded-b-2xl w-24 md:w-28 mx-auto z-20" />
+                  {/* Mock App UI */}
+                  <div className="bg-slate-50 w-full h-full rounded-t-xl md:rounded-t-[1.5rem] overflow-hidden flex flex-col p-3 md:p-4 pt-8 md:pt-10 pb-0">
+                     <div className="text-center font-bold text-sm mb-4 text-slate-800">Live Auctions</div>
+                     <div className="flex flex-col flex-1 bg-white rounded-xl shadow-sm border border-slate-100 p-2 mb-3 h-44 overflow-hidden">
+                        <div className="w-full h-24 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden mb-2">
+                           <img src={previewCars[0]?.imageUrl || "/gac-m8.jpg"} className="w-full h-full object-contain mix-blend-multiply" alt="Mock UI" />
+                        </div>
+                        <div className="h-3 w-3/4 bg-slate-200 rounded-full mb-2 shrink-0" />
+                        <div className="h-6 w-1/2 bg-amber-500/20 rounded-md shrink-0" />
+                     </div>
+                     <div className="flex flex-col flex-1 bg-white rounded-t-xl shadow-sm border-x border-t border-slate-100 p-2 opacity-50 h-28 overflow-hidden">
+                        <div className="w-full h-24 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden mb-2">
+                           <img src={previewCars[1]?.imageUrl || "/honda.jpg"} className="w-full h-full object-contain mix-blend-multiply" alt="Mock UI" />
+                        </div>
+                     </div>
+                  </div>
+               </div>
+             </div>
+          </div>
+      </section>
+
+      {/* Footer Block */}
+      <footer className="w-full bg-slate-50 dark:bg-slate-950 pt-32 pb-12 transition-colors duration-500 border-t border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between mb-16 gap-12 border-b border-slate-200 dark:border-slate-800 pb-16">
+            
+            <div>
+               <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
+                  <div className="size-8 rounded-full bg-teal-600 flex items-center justify-center">
+                     <CarIcon className="size-5 text-white" />
+                  </div>
+                  <span className="text-2xl font-black text-teal-900 dark:text-white tracking-tight">AUTOBIDS</span>
+               </div>
+               <p className="text-slate-500 font-medium text-sm text-center md:text-left">Drive Your Dreams. Your Agency Starts Here!</p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center w-full max-w-md gap-3 sm:gap-4">
+               <input type="email" placeholder="Your Email Address" className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-full w-full py-3.5 px-6 text-sm font-bold focus:outline-none focus:border-amber-500 transition-all shadow-sm text-slate-800 dark:text-white placeholder:text-slate-400" />
+               <button className="bg-amber-500 text-white font-bold px-8 py-3.5 rounded-xl sm:rounded-full text-sm hover:bg-amber-600 transition-colors shadow-lg w-full sm:w-auto shrink-0 mt-2 sm:mt-0">
+                 Submit
+               </button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-sm font-bold mb-16">
+            <div>
+              <h4 className="text-slate-900 dark:text-white mb-6 text-base font-extrabold">Home</h4>
+              <ul className="space-y-4 text-slate-500">
+                <li><a href="#" className="hover:text-amber-500 text-teal-600">Home</a></li>
+                <li><a href="#" className="hover:text-amber-500">Why Choose Us</a></li>
+                <li><a href="#" className="hover:text-amber-500">Rent</a></li>
+                <li><a href="#" className="hover:text-amber-500">About Us</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-slate-900 dark:text-white mb-6 text-base font-extrabold">Resources</h4>
+              <ul className="space-y-4 text-slate-500">
+                <li><a href="#" className="hover:text-amber-500">Installation Manual</a></li>
+                <li><a href="#" className="hover:text-amber-500">Release Note</a></li>
+                <li><a href="#" className="hover:text-amber-500">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-amber-500">Download Directory</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-slate-900 dark:text-white mb-6 text-base font-extrabold">Brands</h4>
+              <ul className="space-y-4 text-slate-500">
+                <li><a href="#" className="hover:text-amber-500">Tesla</a></li>
+                <li><a href="#" className="hover:text-amber-500">Nissan</a></li>
+                <li><a href="#" className="hover:text-amber-500">BMW</a></li>
+                <li><a href="#" className="hover:text-amber-500">Lamborghini</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-slate-900 dark:text-white mb-6 text-base font-extrabold">Follow Us</h4>
+              <div className="flex gap-4">
+                <a href="#" className="bg-slate-200 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-slate-300 hover:text-white hover:bg-amber-500 transition-all"><Facebook className="size-4" /></a>
+                <a href="#" className="bg-slate-200 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-slate-300 hover:text-white hover:bg-amber-500 transition-all"><Twitter className="size-4" /></a>
+                <a href="#" className="bg-slate-200 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-slate-300 hover:text-white hover:bg-amber-500 transition-all"><Instagram className="size-4" /></a>
+                <a href="#" className="bg-slate-200 dark:bg-slate-800 p-2 rounded-full text-slate-600 dark:text-slate-300 hover:text-white hover:bg-amber-500 transition-all"><Linkedin className="size-4" /></a>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center text-xs font-bold text-slate-400">
+            ©2026 AutoBids. All Rights Reserved.
           </div>
         </div>
       </footer>
+      
     </div>
   );
 }

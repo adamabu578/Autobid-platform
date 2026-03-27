@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200 min-h-screen selection:bg-orange-500/30">
+      <body className="antialiased bg-teal-900 dark:bg-slate-950 text-white dark:text-slate-200 min-h-screen selection:bg-teal-600/30">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <RootClientWrapper>{children}</RootClientWrapper>
           <Toaster theme="system" />

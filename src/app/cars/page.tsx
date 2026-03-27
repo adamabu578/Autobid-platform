@@ -101,7 +101,7 @@ export default function LiveAuctions() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="size-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
+        <div className="size-12 border-4 border-teal-600/30 border-t-teal-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -112,7 +112,7 @@ export default function LiveAuctions() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 tracking-tight flex items-center gap-3">
-            <GavelIcon className="size-8 text-orange-500" />
+            <GavelIcon className="size-8 text-teal-600" />
             Live Auctions
           </h1>
           <p className="text-slate-400 mt-2 text-lg">Browse premium vehicles and place your winning bids.</p>
@@ -126,16 +126,16 @@ export default function LiveAuctions() {
               placeholder="Search make or model..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-slate-900/50 border-white/10 text-white min-w-[250px] focus:border-orange-500 focus:ring-orange-500/20 rounded-xl h-11"
+              className="pl-9 bg-slate-900/50 border-white/10 text-white min-w-[250px] focus:border-teal-600 focus:ring-teal-600/20 rounded-xl h-11"
             />
           </div>
           <Select value={selectedMake} onValueChange={setSelectedMake}>
-            <SelectTrigger className="bg-slate-900/50 border-white/10 text-white w-full sm:w-[180px] focus:ring-orange-500/20 rounded-xl h-11">
+            <SelectTrigger className="bg-slate-900/50 border-white/10 text-white w-full sm:w-[180px] focus:ring-teal-600/20 rounded-xl h-11">
               <SelectValue placeholder="Make" />
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-white/10 text-white rounded-xl">
               {makes.map(make => (
-                <SelectItem key={make} value={make} className="focus:bg-orange-600/20 focus:text-white cursor-pointer">{make}</SelectItem>
+                <SelectItem key={make} value={make} className="focus:bg-teal-700/20 focus:text-white cursor-pointer">{make}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -162,7 +162,7 @@ export default function LiveAuctions() {
                     <div className="flex items-center gap-4">
                       <div className={`size-12 rounded-2xl flex items-center justify-center font-bold text-lg border shadow-lg ${
                         index === 0 
-                          ? 'bg-gradient-to-br from-amber-400 to-orange-600 border-amber-300/50 text-white shadow-orange-500/20' 
+                          ? 'bg-gradient-to-br from-amber-400 to-teal-700 border-amber-300/50 text-white shadow-teal-600/20' 
                           : 'bg-slate-800 border-white/10 text-slate-300'
                       }`}>
                         {index === 0 ? <Award className="size-6 text-white" /> : `#${index + 1}`}
@@ -190,31 +190,31 @@ export default function LiveAuctions() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredCars.map(car => (
-          <Card key={car.id} className="bg-slate-900/40 border-white/10 overflow-hidden hover:border-orange-500/50 transition-all hover:shadow-2xl hover:shadow-orange-500/10 group flex flex-col h-full rounded-2xl p-0">
+          <Card key={car.id} className="bg-slate-900/40 border-white/10 overflow-hidden hover:border-teal-600/50 transition-all hover:shadow-2xl hover:shadow-teal-600/10 group flex flex-col h-full rounded-2xl p-0">
             <div className="relative h-72 w-full overflow-hidden">
               <img 
                 src={car.imageUrl} 
                 alt={`${car.make} ${car.model}`} 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1000&auto=format&fit=crop"; // Premium car fallback
+                  (e.target as HTMLImageElement).src = "/toyota.jpg"; // Premium car fallback
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent pointer-events-none" />
               
               <div className="absolute top-3 left-3 flex flex-col gap-2">
-                <span className="bg-orange-500/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
+                <span className="bg-teal-600/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
                   <span className="size-1.5 rounded-full bg-white animate-pulse block" />
                   Live Bid
                 </span>
               </div>
               
               <div className="absolute bottom-4 left-4 right-4 text-white">
-                <h3 className="font-extrabold text-xl line-clamp-1 group-hover:text-orange-400 transition-colors">
+                <h3 className="font-extrabold text-xl line-clamp-1 group-hover:text-amber-500 transition-colors">
                   {car.year} {car.make} {car.model}
                 </h3>
                 <div className="flex items-center gap-2 text-sm text-gray-300 mt-1">
-                  <Clock className="size-3.5 text-orange-400" />
+                  <Clock className="size-3.5 text-amber-500" />
                   <span className="font-medium">{getTimeRemaining(car.auctionEndTime)}</span>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function LiveAuctions() {
                     {car.sellerName}
                   </span>
                   {car.isTopSeller && (
-                    <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-amber-500/30 text-[9px] font-black text-amber-400 uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="Premium Verified Seller">
+                    <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500/20 to-teal-700/20 border border-amber-500/30 text-[9px] font-black text-amber-400 uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="Premium Verified Seller">
                       <Award className="size-3" /> Top Seller
                     </span>
                   )}
@@ -245,8 +245,8 @@ export default function LiveAuctions() {
                     <div className="text-sm font-bold text-white">${car.highestBid > 0 ? car.highestBid.toLocaleString() : car.startingPrice.toLocaleString()}</div>
                   </div>
                   {car.buyItNowPrice && (
-                    <div className="bg-orange-500/10 rounded-xl p-3 border border-orange-500/20 shadow-inner shadow-orange-500/5">
-                      <div className="text-[10px] text-orange-400 uppercase font-bold mb-1">Buy It Now</div>
+                    <div className="bg-teal-600/10 rounded-xl p-3 border border-teal-600/20 shadow-inner shadow-teal-600/5">
+                      <div className="text-[10px] text-amber-500 uppercase font-bold mb-1">Buy It Now</div>
                       <div className="text-sm font-bold text-white">${car.buyItNowPrice.toLocaleString()}</div>
                     </div>
                   )}
@@ -254,7 +254,7 @@ export default function LiveAuctions() {
 
                 <Link href={`/cars/${car.id}`} className="block">
                   <Button 
-                    className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white shadow-lg shadow-orange-900/20 h-11 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] font-bold"
+                    className="w-full bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-500 hover:to-teal-300 text-white shadow-lg shadow-teal-900/20 h-11 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] font-bold"
                   >
                     View & Bid <ArrowRight className="size-4 ml-2" />
                   </Button>

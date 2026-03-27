@@ -77,7 +77,7 @@ export default function UploadCarPage() {
       // Wait a moment so the user sees the success state
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const finalImage = imageUrl.trim() || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1000&auto=format&fit=crop";
+      const finalImage = imageUrl.trim() || "/bmw.jpg";
 
       await createCarListing(
         make,
@@ -119,9 +119,9 @@ export default function UploadCarPage() {
 
           <form onSubmit={handleInitialSubmit}>
             <Card className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden rounded-2xl">
-              <div className="bg-gradient-to-r from-orange-600/20 to-transparent p-6 border-b border-white/5">
+              <div className="bg-gradient-to-r from-teal-700/20 to-transparent p-6 border-b border-white/5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-orange-500/20 border border-orange-500/30 text-orange-400">
+                  <div className="p-2.5 rounded-xl bg-teal-600/20 border border-teal-600/30 text-amber-500">
                     <CarFront className="size-6" />
                   </div>
                   <div>
@@ -140,7 +140,7 @@ export default function UploadCarPage() {
                       placeholder="e.g. Mercedes-Benz"
                       value={make}
                       onChange={(e) => setMake(e.target.value)}
-                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-orange-500 focus:ring-orange-500/20"
+                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-teal-600 focus:ring-teal-600/20"
                     />
                   </div>
                   <div className="space-y-2">
@@ -150,7 +150,7 @@ export default function UploadCarPage() {
                       placeholder="e.g. AMG GT"
                       value={model}
                       onChange={(e) => setModel(e.target.value)}
-                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-orange-500 focus:ring-orange-500/20"
+                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-teal-600 focus:ring-teal-600/20"
                     />
                   </div>
                   <div className="space-y-2">
@@ -161,7 +161,7 @@ export default function UploadCarPage() {
                       placeholder="e.g. 2023"
                       value={year}
                       onChange={(e) => setYear(e.target.value)}
-                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-orange-500 focus:ring-orange-500/20"
+                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-teal-600 focus:ring-teal-600/20"
                     />
                   </div>
                   <div className="space-y-2">
@@ -173,7 +173,7 @@ export default function UploadCarPage() {
                         placeholder="e.g. 12500"
                         value={mileage}
                         onChange={(e) => setMileage(e.target.value)}
-                        className="bg-slate-950/50 border-white/10 text-white pl-4 pr-12 h-12 rounded-xl focus:border-orange-500 focus:ring-orange-500/20"
+                        className="bg-slate-950/50 border-white/10 text-white pl-4 pr-12 h-12 rounded-xl focus:border-teal-600 focus:ring-teal-600/20"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium text-sm">mi</span>
                     </div>
@@ -183,14 +183,14 @@ export default function UploadCarPage() {
                 <div className="space-y-2">
                   <Label htmlFor="condition" className="text-slate-300 font-medium">Condition</Label>
                   <Select value={condition} onValueChange={(v: any) => setCondition(v)}>
-                    <SelectTrigger className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:ring-orange-500/20">
+                    <SelectTrigger className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:ring-teal-600/20">
                       <SelectValue placeholder="Select condition" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-white/10 text-white rounded-xl">
-                      <SelectItem value="New" className="focus:bg-orange-600/20 focus:text-white cursor-pointer py-2.5">New</SelectItem>
-                      <SelectItem value="Used - Excellent" className="focus:bg-orange-600/20 focus:text-white cursor-pointer py-2.5">Used - Excellent</SelectItem>
-                      <SelectItem value="Used - Good" className="focus:bg-orange-600/20 focus:text-white cursor-pointer py-2.5">Used - Good</SelectItem>
-                      <SelectItem value="Used - Fair" className="focus:bg-orange-600/20 focus:text-white cursor-pointer py-2.5">Used - Fair</SelectItem>
+                      <SelectItem value="New" className="focus:bg-teal-700/20 focus:text-white cursor-pointer py-2.5">New</SelectItem>
+                      <SelectItem value="Used - Excellent" className="focus:bg-teal-700/20 focus:text-white cursor-pointer py-2.5">Used - Excellent</SelectItem>
+                      <SelectItem value="Used - Good" className="focus:bg-teal-700/20 focus:text-white cursor-pointer py-2.5">Used - Good</SelectItem>
+                      <SelectItem value="Used - Fair" className="focus:bg-teal-700/20 focus:text-white cursor-pointer py-2.5">Used - Fair</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -204,7 +204,7 @@ export default function UploadCarPage() {
                     <Label htmlFor="startingPrice" className="text-slate-300 font-medium">Starting Bid</Label>
                     <div className="relative">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                        <DollarSign className="size-4 text-orange-400" />
+                        <DollarSign className="size-4 text-amber-500" />
                       </div>
                       <Input
                         id="startingPrice"
@@ -212,7 +212,7 @@ export default function UploadCarPage() {
                         placeholder="0.00"
                         value={startingPrice}
                         onChange={(e) => setStartingPrice(e.target.value)}
-                        className="bg-slate-950/50 border-white/10 text-white pl-10 h-12 rounded-xl focus:border-orange-500 focus:ring-orange-500/20"
+                        className="bg-slate-950/50 border-white/10 text-white pl-10 h-12 rounded-xl focus:border-teal-600 focus:ring-teal-600/20"
                       />
                     </div>
                   </div>
@@ -228,7 +228,7 @@ export default function UploadCarPage() {
                         placeholder="0.00"
                         value={buyItNowPrice}
                         onChange={(e) => setBuyItNowPrice(e.target.value)}
-                        className="bg-slate-950/50 border-white/10 text-white pl-10 h-12 rounded-xl focus:border-orange-500 focus:ring-orange-500/20"
+                        className="bg-slate-950/50 border-white/10 text-white pl-10 h-12 rounded-xl focus:border-teal-600 focus:ring-teal-600/20"
                       />
                     </div>
                   </div>
@@ -237,7 +237,7 @@ export default function UploadCarPage() {
                 <div className="space-y-2">
                   <Label htmlFor="auctionDays" className="text-slate-300 font-medium">Auction Duration</Label>
                   <Select value={auctionDays} onValueChange={setAuctionDays}>
-                    <SelectTrigger className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:ring-orange-500/20">
+                    <SelectTrigger className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:ring-teal-600/20">
                       <SelectValue placeholder="Select duration" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-white/10 text-white rounded-xl">
@@ -252,7 +252,7 @@ export default function UploadCarPage() {
                 <div className="space-y-2">
                   <Label className="text-slate-300 font-medium">Vehicle Image</Label>
                   <div className="flex flex-col gap-4">
-                    <div className="relative group cursor-pointer w-full h-40 bg-slate-950/50 border-2 border-dashed border-white/20 rounded-xl hover:border-orange-500/50 transition-colors flex flex-col items-center justify-center text-slate-400 overflow-hidden">
+                    <div className="relative group cursor-pointer w-full h-40 bg-slate-950/50 border-2 border-dashed border-white/20 rounded-xl hover:border-teal-600/50 transition-colors flex flex-col items-center justify-center text-slate-400 overflow-hidden">
                       <input
                         type="file"
                         accept="image/png, image/jpeg, image/webp"
@@ -263,15 +263,15 @@ export default function UploadCarPage() {
                         <>
                           <img src={imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-slate-950/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="bg-orange-500 text-white text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2">
+                            <span className="bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2">
                               <UploadCloud className="size-4" /> Change Image
                             </span>
                           </div>
                         </>
                       ) : (
                         <>
-                          <ImagePlus className="size-8 mb-3 text-slate-500 group-hover:text-orange-400 transition-colors" />
-                          <span className="text-sm font-medium text-slate-300 group-hover:text-orange-300 transition-colors">Click or drag image to upload</span>
+                          <ImagePlus className="size-8 mb-3 text-slate-500 group-hover:text-amber-500 transition-colors" />
+                          <span className="text-sm font-medium text-slate-300 group-hover:text-amber-400 transition-colors">Click or drag image to upload</span>
                           <span className="text-xs opacity-70 mt-1">PNG, JPG, WEBP</span>
                         </>
                       )}
@@ -281,7 +281,7 @@ export default function UploadCarPage() {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white h-14 rounded-xl text-lg font-bold shadow-xl shadow-orange-900/30 transition-all hover:scale-[1.02] active:scale-[0.98] mt-6"
+                  className="w-full bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-500 hover:to-teal-300 text-white h-14 rounded-xl text-lg font-bold shadow-xl shadow-teal-900/30 transition-all hover:scale-[1.02] active:scale-[0.98] mt-6"
                 >
                   Proceed to Payment
                 </Button>
@@ -297,13 +297,13 @@ export default function UploadCarPage() {
             <Card className="bg-slate-900/40 border-white/5 overflow-hidden shadow-2xl rounded-2xl p-0">
               <div className="relative h-48 w-full overflow-hidden bg-slate-950">
                 <img 
-                  src={imageUrl || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1000&auto=format&fit=crop"} 
+                  src={imageUrl || "/bmw.jpg"} 
                   alt="Preview" 
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/20 to-transparent pointer-events-none" />
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
-                  <span className="bg-orange-500/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white flex items-center gap-1">
+                  <span className="bg-teal-600/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white flex items-center gap-1">
                     <span className="size-1.5 rounded-full bg-white animate-pulse block" /> Live Bid
                   </span>
                 </div>
@@ -320,8 +320,8 @@ export default function UploadCarPage() {
                     <div className="text-xs font-bold text-white">${startingPrice ? parseFloat(startingPrice).toLocaleString() : '0'}</div>
                   </div>
                   {buyItNowPrice && (
-                    <div className="bg-orange-500/10 rounded-lg p-2 border border-orange-500/20">
-                      <div className="text-[9px] text-orange-400 uppercase font-bold mb-0.5">Buy It Now</div>
+                    <div className="bg-teal-600/10 rounded-lg p-2 border border-teal-600/20">
+                      <div className="text-[9px] text-amber-500 uppercase font-bold mb-0.5">Buy It Now</div>
                       <div className="text-xs font-bold text-white">${parseFloat(buyItNowPrice).toLocaleString()}</div>
                     </div>
                   )}
@@ -347,7 +347,7 @@ export default function UploadCarPage() {
               </div>
             )}
 
-            <div className="bg-gradient-to-r from-orange-600/20 to-transparent p-6 border-b border-white/5 relative">
+            <div className="bg-gradient-to-r from-teal-700/20 to-transparent p-6 border-b border-white/5 relative">
               <button 
                 onClick={() => !paymentProcessing && !paymentSuccess && setShowPaymentModal(false)}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
@@ -356,7 +356,7 @@ export default function UploadCarPage() {
                 ✕
               </button>
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-orange-500/20 border border-orange-500/30 text-orange-400">
+                <div className="p-2.5 rounded-xl bg-teal-600/20 border border-teal-600/30 text-amber-500">
                   <CreditCard className="size-6" />
                 </div>
                 <div>
@@ -382,7 +382,7 @@ export default function UploadCarPage() {
                     <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-500" />
                     <Input 
                       placeholder="4242 4242 4242 4242" 
-                      className="bg-slate-950/50 border-white/10 text-white pl-10 h-12 rounded-xl focus:border-orange-500"
+                      className="bg-slate-950/50 border-white/10 text-white pl-10 h-12 rounded-xl focus:border-teal-600"
                     />
                   </div>
                 </div>
@@ -392,7 +392,7 @@ export default function UploadCarPage() {
                     <Label className="text-slate-300 text-xs font-bold uppercase tracking-wider">Expiry</Label>
                     <Input 
                       placeholder="MM/YY" 
-                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-orange-500"
+                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-teal-600"
                     />
                   </div>
                   <div className="space-y-2">
@@ -401,7 +401,7 @@ export default function UploadCarPage() {
                       placeholder="123" 
                       type="password"
                       maxLength={4}
-                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-orange-500"
+                      className="bg-slate-950/50 border-white/10 text-white h-12 rounded-xl focus:border-teal-600"
                     />
                   </div>
                 </div>
@@ -413,7 +413,7 @@ export default function UploadCarPage() {
 
               <Button 
                 onClick={processPaymentAndListCar}
-                className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white h-14 rounded-xl text-lg font-bold shadow-xl transition-all"
+                className="w-full bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-500 hover:to-teal-300 text-white h-14 rounded-xl text-lg font-bold shadow-xl transition-all"
                 disabled={paymentProcessing}
               >
                 {paymentProcessing ? (

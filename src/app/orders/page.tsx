@@ -57,7 +57,7 @@ export default function WonAuctionsPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="size-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
+        <div className="size-12 border-4 border-teal-600/30 border-t-teal-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -99,7 +99,7 @@ export default function WonAuctionsPage() {
               <div className="flex flex-col md:flex-row h-full">
                 <div className="w-full md:w-64 h-48 md:h-auto relative overflow-hidden shrink-0">
                   <img 
-                    src={car.imageUrl || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1000"} 
+                    src={car.imageUrl || "/benz.jpg"} 
                     alt={car.make} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />

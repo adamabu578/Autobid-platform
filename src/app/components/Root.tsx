@@ -74,7 +74,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         {/* Abstract Background Elements — hidden on landing page */}
         {user && (
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-orange-900/20 blur-[120px]" />
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-teal-900/20 blur-[120px]" />
           <div className="absolute top-[60%] -right-[10%] w-[40%] h-[40%] rounded-full bg-amber-900/20 blur-[100px]" />
         </div>
         )}
@@ -90,7 +90,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
                   className="flex items-center gap-3 cursor-pointer group transition-transform hover:scale-105 active:scale-95"
                   onClick={() => router.push('/')}
                 >
-                  <div className="p-2 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 transition-shadow">
+                  <div className="p-2 rounded-xl bg-gradient-to-tr from-teal-600 to-teal-400 shadow-lg shadow-teal-600/20 group-hover:shadow-teal-600/40 transition-shadow">
                     <CarFront className="size-5 text-white" />
                   </div>
                   <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 hidden sm:inline">AutoBids</span>
@@ -125,7 +125,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
                     <span className="text-sm font-medium text-gray-200">
                       {user.user_metadata?.name}
                     </span>
-                    <span className="text-xs text-orange-400 font-medium tracking-wider uppercase">
+                    <span className="text-xs text-amber-500 font-medium tracking-wider uppercase">
                       {userRole}
                     </span>
                   </div>
@@ -149,7 +149,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
           {loading ? (
             <div className="flex items-center justify-center h-[60vh]">
               <div
-                className="size-10 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"
+                className="size-10 border-2 border-teal-600/30 border-t-teal-600 rounded-full animate-spin"
               />
             </div>
           ) : (

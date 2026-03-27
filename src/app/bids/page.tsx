@@ -130,7 +130,7 @@ export default function MyBidsPage() {
                 <div className="flex flex-col md:flex-row h-full">
                   <div className="w-full md:w-64 h-48 md:h-auto relative overflow-hidden shrink-0">
                     <img 
-                      src={bid.car.imageUrl || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1000"} 
+                      src={bid.car.imageUrl || "/audi.jpg"} 
                       alt={bid.car.make} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
