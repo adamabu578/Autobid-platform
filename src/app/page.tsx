@@ -184,7 +184,7 @@ export default function Landing() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-amber-500 selection:text-white overflow-x-hidden">
+    <div id="home" className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-amber-500 selection:text-white overflow-x-hidden">
       
       {/* Navbar */}
       <nav className="absolute top-0 w-full z-50 py-6 transition-colors duration-500">
@@ -197,10 +197,10 @@ export default function Landing() {
           </div>
           
           <div className="hidden lg:flex items-center gap-10 font-bold text-sm text-teal-950 dark:text-slate-200">
-            <a href="#" className="hover:text-amber-500 transition-colors">Home</a>
-            <a href="#" className="hover:text-amber-500 transition-colors">Why Choose Us</a>
-            <a href="#" className="hover:text-amber-500 transition-colors">Auctions</a>
-            <a href="#" className="hover:text-amber-500 transition-colors">About Us</a>
+            <a href="#home" className="hover:text-amber-500 transition-colors">Home</a>
+            <a href="#features" className="hover:text-amber-500 transition-colors">Why Choose Us</a>
+            <a href="#auctions" className="hover:text-amber-500 transition-colors">Auctions</a>
+            <a href="#about" className="hover:text-amber-500 transition-colors">About Us</a>
           </div>
           
           <div className="flex items-center gap-4">
@@ -340,7 +340,7 @@ export default function Landing() {
       </div>
 
       {/* Features Section */}
-      <section className="py-24 lg:py-32 bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
+      <section id="features" className="py-24 lg:py-32 bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           
           <div className="relative order-2 lg:order-1">
@@ -405,7 +405,7 @@ export default function Landing() {
       </section>
 
       {/* Pick Your Car Slider Area */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section id="auctions" className="relative py-16 md:py-24 overflow-hidden">
         {/* Massive Dual Color Behind Carousel */}
         <div className="absolute inset-x-0 top-0 h-[85%] md:h-[80%] bg-[linear-gradient(135deg,#0d9488_50%,#ffbe0b_50.1%)] md:bg-[linear-gradient(108deg,#0d9488_40%,#ffbe0b_40.1%)] z-0 rounded-3xl mx-4 lg:mx-10" />
         
@@ -471,7 +471,7 @@ export default function Landing() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-32 bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
+      <section id="about" className="py-32 bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
         {/* Soft Blobs */}
         <div className="absolute left-[-10%] top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-400/20 blur-[120px] rounded-full" />
         <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-600/20 blur-[120px] rounded-full" />
@@ -584,10 +584,10 @@ export default function Landing() {
             <div>
               <h4 className="text-slate-900 dark:text-white mb-6 text-base font-extrabold">Home</h4>
               <ul className="space-y-4 text-slate-500">
-                <li><a href="#" className="hover:text-amber-500 text-teal-600">Home</a></li>
-                <li><a href="#" className="hover:text-amber-500">Why Choose Us</a></li>
-                <li><a href="#" className="hover:text-amber-500">Rent</a></li>
-                <li><a href="#" className="hover:text-amber-500">About Us</a></li>
+                <li><a href="#home" className="hover:text-amber-500 text-teal-600 dark:text-teal-400">Home</a></li>
+                <li><a href="#features" className="hover:text-amber-500">Why Choose Us</a></li>
+                <li><a href="#auctions" className="hover:text-amber-500">Auctions</a></li>
+                <li><a href="#about" className="hover:text-amber-500">About Us</a></li>
               </ul>
             </div>
             <div>
