@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./components/Root";
-import { signup, signin, getCars, getUserBids, getCar, type Car } from "./utils/api";
+import { signup, signin, getCars, getUserBids, getCar, getCarBids, type Car } from "./utils/api";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Label } from "./components/ui/label";
@@ -58,12 +58,22 @@ export default function Landing() {
     if (user) fetchPersonalizedHero();
   }, [user, userRole]);
 
+  const [previewCurrentBid, setPreviewCurrentBid] = useState<number | null>(null);
+
   useEffect(() => {
     const loadPreview = async () => {
       try {
         const data = await getCars();
         const active = data.filter(c => c.status === 'active').slice(0, 3);
         setPreviewCars(active);
+        
+        // Dynamically fetch live bidding market data for the global active feature
+        if (active.length > 0) {
+          const bids = await getCarBids(active[0].id);
+          if (bids && bids.length > 0) {
+            setPreviewCurrentBid(bids[0].amount);
+          }
+        }
       } catch (e) {
         console.log("Failed to load previews", e);
       }
@@ -448,7 +458,7 @@ export default function Landing() {
                   <ShieldCheck className="size-4 md:size-5 text-teal-600" />
                 </div>
                 <div className="text-left leading-none">
-                   <span className="text-xl md:text-2xl font-black text-slate-800 dark:text-white">${previewCars[0]?.startingPrice.toLocaleString() || "300"}</span>
+                   <span className="text-xl md:text-2xl font-black text-slate-800 dark:text-white">₦{previewCurrentBid ? previewCurrentBid.toLocaleString() : (previewCars[0]?.startingPrice.toLocaleString() || "300")}</span>
                    <span className="text-slate-400 text-[10px] md:text-xs font-bold block sm:inline sm:ml-1">/current bid</span>
                 </div>
              </div>
