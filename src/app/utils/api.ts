@@ -253,6 +253,16 @@ export async function updateCarStatus(id: string, status: Car['status']): Promis
   }
 }
 
+export async function clearSellerCars(): Promise<void> {
+  const session = await getCurrentSession();
+  const sellerId = session?.user?.id;
+  if (!sellerId) throw new Error('Not authenticated');
+  
+  const cars = getSavedItems<Car>('mockCars');
+  const remainingCars = cars.filter(c => c.sellerId !== sellerId);
+  saveItems('mockCars', remainingCars);
+}
+
 // Bid functions
 export async function placeBid(carId: string, amount: number): Promise<Bid> {
   const session = await getCurrentSession();
@@ -341,4 +351,16 @@ export async function getOrders(): Promise<Order[]> {
     return orders.filter(o => o.sellerId === userId);
   }
   return orders;
+}
+
+export async function updateOrderStatus(orderId: string, status: Order['status']): Promise<Order> {
+  const orders = getSavedItems<Order>('mockOrders');
+  const index = orders.findIndex(o => o.id === orderId);
+  if (index === -1) throw new Error('Order not found');
+
+  orders[index].status = status;
+  orders[index].updatedAt = new Date().toISOString();
+  saveItems('mockOrders', orders);
+
+  return orders[index];
 }

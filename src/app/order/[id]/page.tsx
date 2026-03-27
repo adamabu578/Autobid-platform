@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../components/Root";
-import { getOrders, getCar, type Order, type Car } from "../../utils/api";
+import { getOrders, getCar, updateOrderStatus, type Order, type Car } from "../../utils/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { PaystackButton } from "react-paystack";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
 import { Package, CheckCircle, CarFront, DollarSign } from "lucide-react";
@@ -180,7 +181,29 @@ export default function OrderStatusPage() {
         </Card>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-6">
+        {order.status === 'pending_payment' && userRole === 'buyer' && (
+          <div className="flex justify-center mt-4 mb-8">
+            <PaystackButton
+              email={user?.email || 'buyer@example.com'}
+              amount={order.amount * 100} // Paystack expects amount in Kobo
+              publicKey={process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_b8e519ac1219b22295fa9190117b3ebec3a5518b'}
+              text="Pay Now with Paystack"
+              onSuccess={async (reference: any) => {
+                try {
+                  await updateOrderStatus(order.id, 'paid');
+                  toast.success(`Payment successful! Ref: ${reference.reference}`);
+                  loadOrder();
+                } catch (error) {
+                  toast.error('Failed to update order status');
+                }
+              }}
+              onClose={() => toast.info('Payment window closed')}
+              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-bold rounded-xl shadow-xl shadow-amber-500/20 transition-all flex items-center gap-2"
+            />
+          </div>
+        )}
+
         {order.status === 'completed' && (
           <div 
             className="p-6 bg-gradient-to-r from-green-900/40 to-emerald-900/20 rounded-2xl border border-green-500/30 shadow-2xl shadow-green-900/20"

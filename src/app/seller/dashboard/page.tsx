@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/Root";
-import { getCars, getCarBids, type Car } from "../../utils/api";
+import { getCars, getCarBids, clearSellerCars, type Car } from "../../utils/api";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../../components/ui/alert-dialog";
 import { CarFront, Clock, ArrowRight, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -51,6 +52,18 @@ export default function SellerDashboard() {
     }
   };
 
+  const handleClearInventory = async () => {
+    try {
+      setLoading(true);
+      await clearSellerCars();
+      toast.success("Inventory cleared successfully");
+      await loadInventory();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to clear inventory");
+      setLoading(false);
+    }
+  };
+
   const getTimeRemaining = (endTime: string) => {
     const total = Date.parse(endTime) - Date.parse(new Date().toString());
     const days = Math.floor(total / (1000 * 60 * 60 * 24));
@@ -77,6 +90,30 @@ export default function SellerDashboard() {
           <p className="text-gray-400 font-medium tracking-wide">Monitor your active listings and incoming bids</p>
         </div>
         <div className="flex items-center gap-3">
+          {cars.length > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline"
+                  className="border-red-500/30 text-red-500 hover:bg-red-500/10 shadow-lg shadow-red-500/5 font-bold h-11"
+                >
+                  Clear Inventory
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-slate-900 border-white/10 text-white">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-gray-400">
+                    This action cannot be undone. This will permanently delete all your listed cars and remove them from our active auctions.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10 hover:text-white text-gray-300">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearInventory} className="bg-red-500/90 hover:bg-red-500 text-white border-none">Yes, clear inventory</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button 
             onClick={() => router.push('/upload-car')}
             className="bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-500 hover:to-teal-300 text-white shadow-lg shadow-teal-600/20 rounded-xl font-bold h-11"
