@@ -104,6 +104,9 @@ export default function Landing() {
       await refreshUser();
       toast.success(`Signed in as Demo ${demoRole.charAt(0).toUpperCase() + demoRole.slice(1)}`);
       setAuthOpen(false);
+      if (demoRole === 'buyer') {
+        router.push('/cars');
+      }
     } catch (error: any) {
       toast.error(error.message || 'Demo sign in failed');
     } finally {
@@ -186,42 +189,44 @@ export default function Landing() {
   return (
     <div id="home" className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-amber-500 selection:text-white overflow-x-hidden">
       
-      {/* Navbar */}
-      <nav className="absolute top-0 w-full z-50 py-6 transition-colors duration-500">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-full bg-teal-600 flex items-center justify-center">
-               <CarIcon className="size-5 text-white" />
+      {/* Navbar - hidden when user is logged in to prevent double navbar with Root.tsx */}
+      {!user && (
+        <nav className="absolute top-0 w-full z-50 py-6 transition-colors duration-500">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="size-8 rounded-full bg-teal-600 flex items-center justify-center">
+                 <CarIcon className="size-5 text-white" />
+              </div>
+              <span className="text-xl font-black text-teal-900 dark:text-white tracking-tight">AUTOBIDS</span>
             </div>
-            <span className="text-xl font-black text-teal-900 dark:text-white tracking-tight">AUTOBIDS</span>
+            
+            <div className="hidden lg:flex items-center gap-10 font-bold text-sm text-teal-950 dark:text-slate-200">
+              <a href="#home" className="hover:text-amber-500 transition-colors">Home</a>
+              <a href="#features" className="hover:text-amber-500 transition-colors">Why Choose Us</a>
+              <a href="#auctions" className="hover:text-amber-500 transition-colors">Auctions</a>
+              <a href="#about" className="hover:text-amber-500 transition-colors">About Us</a>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <AuthModal triggerElement={
+                 <button className="hidden sm:block px-6 py-2.5 rounded-full border-2 border-teal-700 text-teal-800 dark:text-teal-200 font-bold text-sm hover:bg-teal-50 dark:hover:bg-slate-800 transition-colors">Login</button>
+              }/>
+              <AuthModal triggerElement={
+                 <button className="px-6 py-3 rounded-full bg-amber-500 text-white font-bold text-sm shadow-lg shadow-amber-500/30 hover:-translate-y-0.5 transition-transform">Register</button>
+              }/>
+            </div>
           </div>
-          
-          <div className="hidden lg:flex items-center gap-10 font-bold text-sm text-teal-950 dark:text-slate-200">
-            <a href="#home" className="hover:text-amber-500 transition-colors">Home</a>
-            <a href="#features" className="hover:text-amber-500 transition-colors">Why Choose Us</a>
-            <a href="#auctions" className="hover:text-amber-500 transition-colors">Auctions</a>
-            <a href="#about" className="hover:text-amber-500 transition-colors">About Us</a>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <AuthModal triggerElement={
-               <button className="hidden sm:block px-6 py-2.5 rounded-full border-2 border-teal-700 text-teal-800 dark:text-teal-200 font-bold text-sm hover:bg-teal-50 dark:hover:bg-slate-800 transition-colors">Login</button>
-            }/>
-            <AuthModal triggerElement={
-               <button className="px-6 py-3 rounded-full bg-amber-500 text-white font-bold text-sm shadow-lg shadow-amber-500/30 hover:-translate-y-0.5 transition-transform">Register</button>
-            }/>
-          </div>
-        </div>
-      </nav>
+        </nav>
+      )}
 
       {/* Hero Section */}
       <section className="relative w-full min-h-[85vh] flex items-center bg-white dark:bg-slate-900 overflow-hidden pt-32 pb-20">
         
         {/* Abstract Background Shapes */}
-        <div className="absolute top-0 right-[-10%] w-[60%] h-[120%] bg-amber-400 rotate-[-12deg] transform origin-top-right z-0 shadow-2xl skew-x-[-5deg]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[120%] h-[40%] bg-teal-700 rotate-[-8deg] transform origin-bottom-left z-0" />
-        <div className="absolute top-[-20%] left-[-10%] w-[40%] h-[50%] bg-slate-50 dark:bg-slate-800 rotate-[15deg] transform z-0 opacity-50 rounded-full blur-3xl" />
+        <div className="hidden md:block absolute top-0 right-[-10%] w-[60%] h-[120%] bg-amber-400 rotate-[-12deg] transform origin-top-right z-0 shadow-2xl skew-x-[-5deg]" />
+        <div className="hidden md:block absolute bottom-[-10%] right-[-10%] w-[120%] h-[40%] bg-teal-700 rotate-[-8deg] transform origin-bottom-left z-0" />
+        <div className="hidden md:block absolute top-[-20%] left-[-10%] w-[40%] h-[50%] bg-slate-50 dark:bg-slate-800 rotate-[15deg] transform z-0 opacity-50 rounded-full blur-3xl" />
 
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10 w-full">
           {/* Hero Text */}
@@ -245,6 +250,9 @@ export default function Landing() {
                    Start Bidding
                  </button>
                } />
+               <button onClick={() => handleDemoLogin('buyer')} className="flex items-center justify-center gap-2 bg-amber-500 text-white px-8 py-4 rounded-xl text-sm shadow-xl hover:scale-105 transition-transform">
+                 Try Buyer Demo
+               </button>
                <AuthModal triggerElement={
                  <button className="flex items-center justify-center gap-2 bg-white/50 dark:bg-slate-800 backdrop-blur-sm border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white px-8 py-4 rounded-xl text-sm hover:bg-white dark:hover:bg-slate-700 transition-colors">
                    Sell Your Vehicle

@@ -234,7 +234,45 @@ export async function createCarListing(
 }
 
 export async function getCars(): Promise<Car[]> {
-  return getSavedItems<Car>('mockCars');
+  const cars = getSavedItems<Car>('mockCars');
+  if (cars.length === 0) {
+    const seedCars: Car[] = [
+      {
+        id: 'car-seed-1',
+        sellerId: 'demo-seller-456',
+        sellerName: 'Premium Motors',
+        make: 'BMW',
+        model: 'M4 Competition',
+        year: 2023,
+        mileage: 5400,
+        condition: 'Used - Excellent',
+        startingPrice: 65000,
+        auctionEndTime: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 days
+        imageUrl: '/bmw.jpg',
+        status: 'active',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'car-seed-2',
+        sellerId: 'demo-seller-456',
+        sellerName: 'Premium Motors',
+        make: 'Audi',
+        model: 'RS e-tron GT',
+        year: 2024,
+        mileage: 1200,
+        condition: 'New',
+        startingPrice: 85000,
+        buyItNowPrice: 95000,
+        auctionEndTime: new Date(Date.now() + 86400000 * 5).toISOString(), // 5 days
+        imageUrl: '/audi.jpg',
+        status: 'active',
+        createdAt: new Date().toISOString()
+      }
+    ];
+    saveItems('mockCars', seedCars);
+    return seedCars;
+  }
+  return cars;
 }
 
 export async function getCar(id: string): Promise<Car> {
